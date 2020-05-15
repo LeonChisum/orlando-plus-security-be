@@ -1,21 +1,18 @@
+require("dotenv").config();
 const express = require("express");
-const graphqlHTTP = require("express-graphql");
-const schema = require("./schema");
-const configMiddleware = require('./middleware/configMiddleware')
-
 const server = express();
-const PORT = process.env.PORT || 5000;
+const mongoose = require("mongoose");
 
-configMiddleware(server)
+const PORT = process.env.PORT || 3000;
 
-server.use(
-  "/graphql",
-  graphqlHTTP({
-    schema,
-    graphiql: true,
-  })
-);
-
-server.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}...`);
+mongoose.connect(process.env.DB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
+db.once("open", () => console.log("connected to database"));
+
+server.use(express.json())
+
+server.listen(PORT, () => console.log(`server started on ${PORT}`));
