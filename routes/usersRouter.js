@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const Admin = require('../models/admin')
 
 router.get('/admins', (req, res) => {
 
@@ -8,12 +9,6 @@ router.get('/admins', (req, res) => {
 router.get('/admins/:id', (req, res) => {
     
 })
-
-
-router.post('/admins', (req, res) => {
-    
-})
-
 
 router.post('/guards', (req, res) => {
     
