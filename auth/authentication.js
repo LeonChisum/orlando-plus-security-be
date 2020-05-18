@@ -4,6 +4,8 @@ const Admin = require("../models/admin");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const auth = require('../middleware/auth')
+
 // @Route POST /auth/signUp
 // @desc Sign up admin
 // @acess Public
