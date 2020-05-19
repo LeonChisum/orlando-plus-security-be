@@ -11,27 +11,7 @@ const { seedGuards } = require("../models/seeds/seeds");
 // @acess Private
 router.post("/", auth, async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      address: { street, city, state },
-      phone: { cell, home },
-      ssn,
-      birthDate,
-      startDate,
-      dLicense: { blueCard, number, exp },
-      gLicense: { activeLicense, number, exp },
-      ccw: { activeLicense, number, exp },
-      uniform: {
-        polo: { hasIssued, size },
-        jacket: { hasIssued, size },
-      },
-      badge: { hasIssued, barcode },
-      position,
-      rating,
-      shiftPref: { startTime, endTime },
-    } = req.body;
+    const { firstName, lastName, ssn } = req.body;
 
     //validation
     if (!firstName || !lastName)
@@ -43,75 +23,65 @@ router.post("/", auth, async (req, res) => {
     if (guard) return res.status(400).json({ message: "Guard already exists" });
 
     //Creating new guard
-    const newAdmin = new Guard({
-      firstName,
-      lastName,
-      email,
-      address: {
-        street,
-        city,
-        state
-      },
-      phone: {
-        cell,
-        home,
-      },
-      ssn,
-      birthDate,
-      startDate,
-      dLicense: {
-        blueCard,
-        number,
-        exp,
-      },
-      gLicense: {
-        activeLicense,
-        number,
-        exp,
-      },
-      ccw: {
-        activeLicense,
-        number,
-        exp,
-      },
-      uniform: {
-        polo: {
-          hasIssued,
-          size,
-        },
-        jacket: {
-          hasIssued,
-          size,
-        },
-      },
-      badge: {
-        hasIssued,
-        barcode,
-      },
-      position,
-      rating,
-      shiftPref: {
-        startTime,
-        endTime,
-      },
-    });
+    const newGuard = new Guard(req.body);
+
+    await newGuard.save();
+
+    res.status(201).json(newGuard);
   } catch (error) {
     console.log(error);
   }
 });
 
-router.put("/admins/:id", (req, res) => {
+// @Route GET /guards
+// @desc getting all guards
+// @acess Private
+router.get("/", auth, async (req, res) => {
   try {
-  } catch (error) {}
+    const guards = await Guard.find({});
+
+    if (!guards)
+      return res.status(400).json({ message: "Could not return guards" });
+
+    res.status(200).json(guards);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-router.put("/guards", (req, res) => {
+// @Route GET /guards/:id
+// @desc getting a specific guard
+// @acess Private
+router.get("/:id", auth, async (req, res) => {
   try {
-  } catch (error) {}
+    const guard = await Guard.findById(req.params.id);
+
+    if (!guard)
+      return res
+        .status(400)
+        .json({ message: "Guard with that ID does not exist" });
+
+    res.status(200).json(guard);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-router.get("/", (req, res) => {
+// @Route PUT /guards/:id
+// @desc updating a specific guard
+// @acess Private
+router.put("/guards/:id", auth, async (req, res) => {
   try {
+    const updatedGuard = await Guard.findByIdAndUpdate(req.params.id, req.body)
+
+    if (!updatedGuard)
+      return res
+        .status(400)
+        .json({ message: "Guard with that ID does not exist" });
+    
+    await updatedGuard.save()
+
+    res.status(202).json(updatedGuard, { message: "Success, Your changes have been made!"});
   } catch (error) {}
 });
 
