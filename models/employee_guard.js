@@ -51,6 +51,7 @@ const guardSchema = new mongoose.Schema({
         default: true,
       },
       size: String,
+      qty: Number,
     },
     jacket: {
       hasIssued: {
@@ -78,6 +79,12 @@ const guardSchema = new mongoose.Schema({
       max: 2400,
     },
   },
+  transportation: String,
+  emergencyContact: {
+    name: String,
+    phone: Number,
+    relation: String,
+  }
 });
 
 module.exports = mongoose.model("Guard", guardSchema);

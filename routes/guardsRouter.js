@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Guard = require("../models/employee_guard");
-const faker = require("faker");
+// const faker = require("faker");
 
 const auth = require("../middleware/auth");
 const { seedGuards } = require("../models/seeds/seeds");
@@ -70,23 +70,53 @@ router.get("/:id", auth, async (req, res) => {
 // @Route PUT /guards/:id
 // @desc updating a specific guard
 // @acess Private
-router.put("/guards/:id", auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
-    const updatedGuard = await Guard.findByIdAndUpdate(req.params.id, req.body)
+    const updatedGuard = await Guard.updateOne(
+      { _id: req.params.id },
+      req.body
+    );
 
     if (!updatedGuard)
       return res
         .status(400)
         .json({ message: "Guard with that ID does not exist" });
-    
-    await updatedGuard.save()
 
-    res.status(202).json(updatedGuard, { message: "Success, Your changes have been made!"});
-  } catch (error) {}
+    res
+      .status(202)
+      .json({ message: "Success, Your changes have been made!", ...req.body });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-router.get("/admins", (req, res) => {});
+// @Route DEL /guards/:id
+// @desc deleting a specific guard
+// @acess Private
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const deletedGuard = await Guard.deleteOne({ _id: req.params.id })
 
-router.get("/admins/:id", (req, res) => {});
+    if(!deletedGuard) {
+      return res
+        .status(400)
+        .json({ message: "Guard with that ID does not exist" });
+    }
+
+    res
+    .status(200)
+    .json({ message: `Success, You have deleted guard ${ req.params.id }!`});
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/admins/:id", (req, res) => {
+  try {
+    
+  } catch (error) {
+    
+  }
+});
 
 module.exports = router;

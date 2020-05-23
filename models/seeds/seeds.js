@@ -1,7 +1,6 @@
 const faker = require("faker");
 const Guard = require("../employee_guard");
 
-
 // @creates Fake data to seed Guard collection
 // const guards = await seedGuards(50);
 
@@ -22,8 +21,8 @@ const seedGuards = (num) => {
       state: "FL",
     },
     phone: {
-      cell: faker.phone.phoneNumber(),
-      home: faker.phone.phoneNumber(),
+      cell: faker.phone.phoneNumber(3),
+      home: faker.phone.phoneNumber(3),
     },
     ssn: faker.random.number({ min: 000000000, max: 999999999 }),
     birthDate: faker.date.between("1940-05-18", "2000-08-25"),
@@ -47,6 +46,7 @@ const seedGuards = (num) => {
       polo: {
         hasIssued: faker.random.boolean(),
         size: "L",
+        qty: faker.random.number(4),
       },
       jacket: {
         hasIssued: faker.random.boolean(),
@@ -63,17 +63,23 @@ const seedGuards = (num) => {
       startTime: faker.random.number({ min: 0000, max: 2400 }),
       endTime: faker.random.number({ min: 0000, max: 2400 }),
     },
+    transportation: "car",
+    emergencyContact: {
+      name: faker.random.name(),
+      phone: faker.phone.phoneNumber(3),
+      relation: faker.name.title(),
+    },
   });
 
   const guardsArr = [];
 
   for (let i = 0; i < num; i++) {
-    guardsArr.push(fakeGuard())
+    guardsArr.push(fakeGuard());
   }
 
   return guardsArr;
 };
 
 module.exports = {
-    seedGuards
-}
+  seedGuards,
+};
