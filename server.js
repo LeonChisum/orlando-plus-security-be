@@ -16,6 +16,7 @@ server.use(express.json())
 
 //Routes
 server.use("/auth", require('./auth/authentication'))
+server.use("/guards", require('./routes/guardsRouter'))
 
 
 module.exports = server
