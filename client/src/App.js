@@ -1,10 +1,13 @@
 import React from 'react';
 import './App.css';
 
+// Imported Components
+import Login from './components/auth/Login';
+
 function App() {
   return (
     <div className="App">
-      <h1>OPS Scheduler</h1>
+      <Login />
     </div>
   );
 }

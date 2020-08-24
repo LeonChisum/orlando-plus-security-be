@@ -1,0 +1,42 @@
+.login-form-container{
+    max-width: 20%;
+    margin: 10% auto;
+    padding: 5%;
+    box-shadow: 0px 4px 10px rgba(170, 86, 86, 0.25);
+    border-radius: 10px;
+    position: relative;
+}
+
+.login-form-container img {
+    position: absolute;
+    width: 24%;
+    top: -12%;
+    right: 37%;
+}
+
+.login-form-container h3{
+    text-align: center;
+    font-weight: 600;
+    font-size: larger;
+    letter-spacing: 0.5px;
+}
+
+.login-form-container form {
+    margin-top: 13%;
+    display: flex;
+    flex-direction: column
+}
+
+.login-form-container form label {
+    margin-bottom: 3%;
+}
+
+.login-form-container form input {
+    margin-bottom: 3%;
+    padding: 7px;
+}
+
+.login-form-container form input[type="button"] {
+    margin-top: 13%;
+    background: #D4AF37;
+}
