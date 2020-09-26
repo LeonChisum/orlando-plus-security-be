@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { connect } from 'react-redux'
 import styles from './Login.css'
 import Logo from '../../images/OPSLogo.png'
-import axios from 'axios'
 
-export default function Login() {
+import { login } from '../../actions/authActions'
+
+
+const Login = (props) => {
     const [newUser, setNewUser] = useState({
         email: '',
         password: ''
@@ -18,6 +21,7 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        props.login(newUser)
     }
 
     return (
@@ -43,3 +47,5 @@ export default function Login() {
         </div >
     )
 }
+
+export default connect(null, { login })(Login)
