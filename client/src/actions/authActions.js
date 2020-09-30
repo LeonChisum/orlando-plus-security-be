@@ -9,3 +9,8 @@ export const login = (admin) => (dispatch) => {
         })
         .catch(err => dispatch({ type: LOGIN_FAIL }))
 }
+
+export const logout = () => (dispatch) => {
+    localStorage.removeItem('token')
+    dispatch({ type: LOGOUT_SUCCESS })
+}
