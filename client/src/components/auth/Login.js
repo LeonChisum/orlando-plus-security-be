@@ -23,7 +23,6 @@ const Login = (props) => {
         e.preventDefault();
         props.login(newUser)
         props.history.push('/showdashboard')
-        window.location.reload()
     }
 
     return (

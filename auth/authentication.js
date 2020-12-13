@@ -109,6 +109,10 @@ router.post("/login", async (req, res, next) => {
             });
   
     } catch (error) {
+      res.status(400)
+      .json({
+        messsage: "What Happened?"
+      })
       next(error);
     }
   });

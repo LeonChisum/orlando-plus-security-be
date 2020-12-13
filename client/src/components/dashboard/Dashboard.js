@@ -1,26 +1,28 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 import { Route, Redirect } from "react-router-dom"
 import { connect, useSelector } from 'react-redux'
 import Nav from '../nav/Nav'
+import Loader from '../auth/Loader'
 
-export const Dashboard = () => {
-    const { currentAdmin } = useSelector((state) => state.authReducer )
-    console.log(currentAdmin)
+export const Dashboard = (props) => {
+    // const { currentAdmin } = useSelector((state) => state.authReducer )
+    // console.log(currentAdmin)
     const accessToken = localStorage.getItem('token')
 
-    if (!accessToken) {
-        return <Redirect to="/" />
+    if (props.isLoading) {
+        return <Loader/>
     }
 
     return (
-        <div>
+         props.currentAdmin ? <div>
             <Nav/>
-        </div>
+        </div>  : <Redirect to="/" />
     )
 }
 
 const mapStateToProps = (state) => ({
-    
+    currentAdmin: state.authReducer.currentAdmin,
+    isLoading: state.authReducer.isLoading
 })
 
 const mapDispatchToProps = {
