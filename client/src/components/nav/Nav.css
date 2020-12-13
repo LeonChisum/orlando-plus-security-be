@@ -1,0 +1,67 @@
+#nav-section {
+	transition: all 0.3s ease-in-out;
+}
+.nav-header {
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 1px solid #d4af37;
+	padding: 20px;
+}
+.nav-header h1 {
+	font-size: 1.5rem;
+}
+.nav-header .icon {
+	position: relative;
+	width: 40px;
+	font-size: 1.3rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+}
+.nav-header .icon .adminMenu {
+	position: absolute;
+	top: 30px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 6;
+	background-color: wheat;
+	left: -39px;
+	padding: 10px 15px;
+	border: 1px solid;
+	width: 55px;
+}
+.nav-header .icon .adminMenu h3 {
+	display: block;
+	font-size: 0.8rem;
+	margin: 6px 0;
+}
+.nav-header .icon .adminMenu h3:hover {
+	color: blue;
+}
+.nav-header .icon .fas:nth-child(1) {
+	font-size: 1rem;
+}
+#nav-section ul {
+	display: flex;
+	justify-content: space-between;
+	width: 300px;
+}
+#nav-section ul li {
+	font-size: 1.2rem;
+	cursor: pointer;
+}
+
+#nav-section ul li a {
+	text-decoration: none;
+	color: black;
+}
+
+#nav-section ul li i {
+	font-size: 1rem;
+}
+.nav-active {
+	color: #d4af37 !important;
+}

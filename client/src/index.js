@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import { BrowserRouter as Router } from "react-router-dom"
+import { BrowserRouter as Router, Switch } from "react-router-dom"
 
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -14,7 +14,9 @@ ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <Router>
-        <App />
+        <Switch>
+          <App />
+        </Switch>
       </Router>
     </Provider>
   </React.StrictMode>,
