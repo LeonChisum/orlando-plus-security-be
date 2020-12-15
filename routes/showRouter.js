@@ -6,70 +6,71 @@ const Show = require('../models/shows/show');
 const auth = require('../middleware/auth');
 const { seedShows } = require('../models/seeds/seeds');
 
-// @Route POST /guards
-// @desc create new guard
+// @Route POST /shows
+// @desc create new show
 // @acess Private
 router.post('/', auth, async (req, res) => {
 	try {
-		const { firstName, lastName, ssn } = req.body;
+		const { name, location, moveIn, moveOut, showDays } = req.body;
 
 		//validation
-		if (!firstName || !lastName) return res.status(400).json({ message: 'missing required guard data' });
+		if (!name || !location || !moveIn || !moveOut || !showDays)
+			return res.status(400).json({ message: 'missing required show data' });
 
-		//check for existing guard
-		const guard = await Guard.findOne({ ssn });
+		//check for existing show
+		const show = await Show.findOne({ name });
 
-		if (guard) return res.status(400).json({ message: 'Guard already exists' });
+		if (show) return res.status(400).json({ message: 'Show already exists' });
 
-		//Creating new guard
-		const newGuard = new Guard(req.body);
+		//Creating new show
+		const newShow = new Show(req.body);
 
-		await newGuard.save();
+		await newShow.save();
 
-		res.status(201).json(newGuard);
+		res.status(201).json(newShow);
 	} catch (error) {
 		console.log(error);
 	}
 });
 
-// @Route GET /guards
-// @desc getting all guards
+// @Route GET /shows
+// @desc getting all shows
 // @acess Private
 router.get('/', auth, async (req, res) => {
 	try {
-		const guards = await Guard.find({});
+		const shows = await Show.find({});
 
-		if (!guards) return res.status(400).json({ message: 'Could not return guards' });
+		if (!shows) return res.status(400).json({ message: 'Could not return any shows' });
 
-		res.status(200).json(guards);
+		res.status(200).json(shows);
 	} catch (error) {
 		console.log(error);
 	}
 });
 
-// @Route GET /guards/:id
-// @desc getting a specific guard
+// @Route GET /shows/:id
+// @desc getting a specific show
 // @acess Private
 router.get('/:id', auth, async (req, res) => {
 	try {
-		const guard = await Guard.findById(req.params.id);
+		const show = await Show.findById(req.params.id);
 
-		if (!guard) return res.status(400).json({ message: 'Guard with that ID does not exist' });
+		if (!show) return res.status(400).json({ message: 'Show with that ID does not exist' });
 
-		res.status(200).json(guard);
+		res.status(200).json(show);
 	} catch (error) {
 		console.log(error);
 	}
 });
 
-// @Route PUT /guards/:id
-// @desc updating a specific guard
+// @Route PUT /shows/:id
+// @desc updating a specific show
 // @acess Private
 router.put('/:id', auth, async (req, res) => {
 	try {
-		const updatedGuard = await Guard.updateOne({ _id: req.params.id }, req.body);
+		const updatedShow = await Show.updateOne({ _id: req.params.id }, req.body);
 
-		if (!updatedGuard) return res.status(400).json({ message: 'Guard with that ID does not exist' });
+		if (!updatedShow) return res.status(400).json({ message: 'Show with that ID does not exist' });
 
 		res.status(202).json({ message: 'Success, Your changes have been made!', ...req.body });
 	} catch (error) {
@@ -77,26 +78,21 @@ router.put('/:id', auth, async (req, res) => {
 	}
 });
 
-// @Route DEL /guards/:id
+// @Route DEL /shows/:id
 // @desc deleting a specific guard
 // @acess Private
 router.delete('/:id', auth, async (req, res) => {
 	try {
-		const deletedGuard = await Guard.deleteOne({ _id: req.params.id });
+		const deletedShow = await Show.deleteOne({ _id: req.params.id });
 
-		if (!deletedGuard) {
-			return res.status(400).json({ message: 'Guard with that ID does not exist' });
+		if (!deletedShow) {
+			return res.status(400).json({ message: 'Show with that ID does not exist' });
 		}
 
-		res.status(200).json({ message: `Success, You have deleted guard ${req.params.id}!` });
+		res.status(200).json({ message: `Success, You have deleted show ${req.params.id}!` });
 	} catch (error) {
 		console.log(error);
 	}
-});
-
-router.get('/admins/:id', (req, res) => {
-	try {
-	} catch (error) {}
 });
 
 module.exports = router;
