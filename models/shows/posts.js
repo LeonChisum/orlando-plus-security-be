@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema({
 				required: true,
 			},
 			staff: {
-				guard: Guard,
+				guard: {},
 			},
 			confirmed: Boolean,
 		},

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-confinst server = express();
+const server = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 

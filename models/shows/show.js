@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Post = require('./posts');
+const Post = require('./posts').schema;
 
 const showSchema = new mongoose.Schema({
 	name: {
@@ -11,15 +11,19 @@ const showSchema = new mongoose.Schema({
 		required: true,
 	},
 	moveIn: {
-		type: String,
+		type: Date,
 		required: true,
 	},
-	showDays: {
-		type: String,
+	showDayStart: {
+		type: Date,
+		required: true,
+	},
+	showDayEnd: {
+		type: Date,
 		required: true,
 	},
 	moveOut: {
-		type: String,
+		type: Date,
 		required: true,
 	},
 	confirmed: {
@@ -28,7 +32,12 @@ const showSchema = new mongoose.Schema({
 	pending: {
 		type: Number,
 	},
-	postDays: [[Post]],
+	postDays: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Post',
+		},
+	],
 });
 
 module.exports = mongoose.model('Show', showSchema);
