@@ -37,23 +37,15 @@ router.post('/', auth, async (req, res) => {
 // @desc getting all shows
 // @acess Private
 router.get('/', auth, async (req, res) => {
-	// @creates Fake data to seed Show collection
-	const shows = await seedShows(5);
+	try {
+		const shows = await Show.find({});
 
-	Show.insertMany(shows, (err, docs) => {
-		if (err) return console.log(err);
-		res.status(200).json({ showsAdded: docs });
-	});
+		if (!shows) return res.status(400).json({ message: 'Could not return any shows' });
 
-	// try {
-	// 	const shows = await Show.find({});
-
-	// 	if (!shows) return res.status(400).json({ message: 'Could not return any shows' });
-
-	// 	res.status(200).json(shows);
-	// } catch (error) {
-	// 	console.log(error);
-	// }
+		res.status(200).json(shows);
+	} catch (error) {
+		console.log(error);
+	}
 });
 
 // @Route GET /shows/:id

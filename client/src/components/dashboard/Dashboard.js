@@ -1,32 +1,32 @@
-import React, { Component, useEffect } from 'react'
-import { Route, Redirect } from "react-router-dom"
-import { connect, useSelector } from 'react-redux'
-import Nav from '../nav/Nav'
-import Loader from '../auth/Loader'
+import React, { Component, useEffect } from 'react';
+import { Route, Redirect } from 'react-router-dom';
+import { connect, useSelector } from 'react-redux';
+import Nav from '../nav/Nav';
+import Loader from '../auth/Loader';
+import { ShowDashboard } from '../shows/ShowDashboard';
 
 export const Dashboard = (props) => {
-    // const { currentAdmin } = useSelector((state) => state.authReducer )
-    // console.log(currentAdmin)
-    const accessToken = localStorage.getItem('token')
+	const accessToken = localStorage.getItem('token');
 
-    if (props.isLoading) {
-        return <Loader/>
-    }
+	if (props.isLoading) {
+		return <Loader />;
+	}
 
-    return (
-         props.currentAdmin ? <div>
-            <Nav/>
-        </div>  : <Redirect to="/" />
-    )
-}
+	return accessToken ? (
+		<div>
+			<Nav />
+			<ShowDashboard />
+		</div>
+	) : (
+		<Redirect to='/' />
+	);
+};
 
 const mapStateToProps = (state) => ({
-    currentAdmin: state.authReducer.currentAdmin,
-    isLoading: state.authReducer.isLoading
-})
+	currentAdmin: state.authReducer.currentAdmin,
+	isLoading: state.authReducer.isLoading,
+});
 
-const mapDispatchToProps = {
-    
-}
+const mapDispatchToProps = {};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
