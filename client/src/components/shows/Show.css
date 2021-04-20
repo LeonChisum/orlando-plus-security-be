@@ -1,0 +1,34 @@
+.sd-container {
+	width: 95%;
+	max-width: 1300px;
+	margin: 0 auto;
+	border-radius: 4px;
+	box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+	-webkit-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+	-moz-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+}
+.sd-title {
+	padding: 2%;
+}
+
+.sd-title h1 {
+	text-transform: uppercase;
+	font-size: 1.5rem;
+	font-weight: 800;
+}
+.sd-show-container {
+	background-color: lightblue;
+	padding: 2%;
+}
+.show-card-container {
+	display: flex;
+	justify-content: space-between;
+	height: 80px;
+}
+.show-card-container h3 {
+	border-right: 1px solid black;
+	padding-right: 5px;
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
