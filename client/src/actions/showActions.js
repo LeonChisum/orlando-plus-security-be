@@ -1,8 +1,11 @@
 import { axiosWithAuth } from '../helperFuncs';
-import { SHOWS_LOADED, SHOWS_FAIL } from '../actions/types';
+import { SHOWS_LOADED, SHOWS_FAIL, SHOWS_LOADING } from '../actions/types';
 import { returnErrors } from './errorActions';
 
 export const getShows = () => (dispatch) => {
+	// Load show
+	dispatch({ type: SHOWS_LOADING });
+
 	// send request to Backend
 	axiosWithAuth()
 		.get('/shows')
