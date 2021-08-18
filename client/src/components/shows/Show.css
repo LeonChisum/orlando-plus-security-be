@@ -1,34 +1,57 @@
 .sd-container {
-	width: 95%;
-	max-width: 1300px;
-	margin: 0 auto;
-	border-radius: 4px;
-	box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
-	-webkit-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
-	-moz-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+  margin: 2% auto;
+  width: 95%;
+  max-width: 1400px;
+  border-radius: 4px;
+  box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+  -webkit-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
+  -moz-box-shadow: -1px 2px 12px 1px rgba(0, 0, 0, 0.42);
 }
 .sd-title {
-	padding: 2%;
+  padding: 2%;
 }
 
 .sd-title h1 {
-	text-transform: uppercase;
-	font-size: 1.5rem;
-	font-weight: 800;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 .sd-show-container {
-	background-color: lightblue;
-	padding: 2%;
+  background-color: lightblue;
+  padding: 2%;
 }
 .show-card-container {
-	display: flex;
-	justify-content: space-between;
-	height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  background: whitesmoke;
+  border-radius: 4px;
+  margin-bottom: 1.3%;
 }
 .show-card-container h3 {
-	border-right: 1px solid black;
-	padding-right: 5px;
-	height: 100%;
-	display: flex;
-	align-items: center;
+  border-right: 1px solid black;
+  padding-right: 5px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.show-card-container div {
+  position: relative;
+  height: 100%;
+  width: 150px;
+}
+.show-card-container div h4 {
+  border: 1px solid red;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  clip-path: polygon(0 100%, 0 0, 100% 0);
+}
+.show-card-container div p {
+  border: 1px solid red;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
 }
