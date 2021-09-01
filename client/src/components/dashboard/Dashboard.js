@@ -30,7 +30,29 @@ export const Dashboard = (props) => {
   return accessToken ? (
     <div>
       <Nav />
-      {<ShowDashboard shows={props.shows} isLoading={props.isLoading} />}
+      {/* {<ShowDashboard shows={props.shows} isLoading={props.isLoading} />} */}
+      {props.shows && (
+        <Route
+          path='/'
+          render={(props) => (
+            <ShowDashboard
+              {...props}
+              shows={props.shows}
+              isLoading={props.isLoading}
+            />
+          )}
+        />
+      )}
+      {/* <Route
+        path='/'
+        render={(props) => (
+          <ShowDashboard
+            {...props}
+            shows={props.shows}
+            isLoading={props.isLoading}
+          />
+        )}
+      /> */}
     </div>
   ) : (
     <Redirect to='/' />
