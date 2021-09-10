@@ -24,7 +24,7 @@ export const ShowDashboard = (props) => {
         {props.shows &&
           props.shows.map((show) => (
             <ShowCard
-              key={show.__id}
+              key={show._id}
               name={show.name}
               location={show.location}
               moveIn={show.moveIn}

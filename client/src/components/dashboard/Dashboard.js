@@ -19,7 +19,7 @@ export const Dashboard = (props) => {
       setShows(props.shows);
     };
     retrieveShows();
-  }, [dispatch]);
+  }, []);
 
   const accessToken = localStorage.getItem("token");
 
@@ -30,29 +30,11 @@ export const Dashboard = (props) => {
   return accessToken ? (
     <div>
       <Nav />
-      {/* {<ShowDashboard shows={props.shows} isLoading={props.isLoading} />} */}
       {props.shows && (
-        <Route
-          path='/'
-          render={(props) => (
-            <ShowDashboard
-              {...props}
-              shows={props.shows}
-              isLoading={props.isLoading}
-            />
-          )}
-        />
+        <Route>
+          <ShowDashboard shows={props.shows} isLoading={props.isLoading} />
+        </Route>
       )}
-      {/* <Route
-        path='/'
-        render={(props) => (
-          <ShowDashboard
-            {...props}
-            shows={props.shows}
-            isLoading={props.isLoading}
-          />
-        )}
-      /> */}
     </div>
   ) : (
     <Redirect to='/' />
