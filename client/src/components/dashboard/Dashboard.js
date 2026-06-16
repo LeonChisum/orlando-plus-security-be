@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Route, Redirect, Switch } from "react-router-dom";
 import { connect, useDispatch } from "react-redux";
 
 import Nav from "../nav/Nav";
@@ -7,6 +7,7 @@ import Loader from "../auth/Loader";
 import { ShowDashboard } from "../shows/ShowDashboard";
 
 import { getShows } from "../../actions/showActions";
+import { ShowCalendar } from "../shows/ShowCalendar";
 
 export const Dashboard = (props) => {
   const dispatch = useDispatch();
@@ -30,11 +31,16 @@ export const Dashboard = (props) => {
   return accessToken ? (
     <div>
       <Nav />
-      {props.shows && (
-        <Route>
-          <ShowDashboard shows={props.shows} isLoading={props.isLoading} />
+      <Switch>
+        {props.shows && (
+          <Route path='/'>
+            <ShowDashboard shows={props.shows} isLoading={props.isLoading} />
+          </Route>
+        )}
+        <Route path='/showdashboard'>
+          <ShowCalendar />
         </Route>
-      )}
+      </Switch>
     </div>
   ) : (
     <Redirect to='/' />

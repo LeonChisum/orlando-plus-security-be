@@ -19,7 +19,7 @@ const Login = (props) => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		props.login(newUser);
+		// props.login(newUser);
 		props.history.push('/showdashboard');
 	};
 
