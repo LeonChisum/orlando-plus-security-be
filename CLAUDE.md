@@ -312,7 +312,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 |---|---|---|
 | 1.1 | Project scaffold (Vite + React + TS + tooling) | ✅ |
 | 1.2 | Supabase schema SQL (all tables, enums, triggers) | ✅ |
-| 1.3 | Row Level Security policies | ⬜ |
+| 1.3 | Row Level Security policies | ✅ |
 | 1.4 | TypeScript types (`client/src/types/index.ts`) | ⬜ |
 | 1.5 | Seed data (`supabase/seed.sql`) | ⬜ |
 | 1.6 | Supabase Auth + protected routes | ⬜ |
@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.2 — Supabase Schema SQL  
-**Next ticket to start:** 1.3 — Row Level Security policies  
-**Blockers / open questions:** Need Supabase project created + env vars set to run migrations against a real instance  
-**Notes:** Schema in `supabase/migrations/001_initial_schema.sql`. All TypeScript types in `client/src/types/index.ts` updated to match DB column names (snake_case). `tsc --noEmit` passes clean.
+**Last completed ticket:** 1.3 — Row Level Security policies  
+**Next ticket to start:** 1.4 — TypeScript types (`client/src/types/index.ts`)  
+**Blockers / open questions:** Migration 002_rls.sql must be applied manually via Supabase dashboard SQL editor (no local CLI config yet)  
+**Notes:** RLS enabled on all 9 tables. Authenticated users get full access. Anon blocked everywhere. Phase 7 token-based anon policies are written but commented out in `supabase/migrations/002_rls.sql`.
