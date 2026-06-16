@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Show } from '../../../types/index'
 
 interface Props {
@@ -11,32 +10,24 @@ const ShowCard = ({ show }: Props) => (
       <h3>{show.name}</h3>
     </div>
     <div className="show-card-details">
-      <h4>Location</h4>
-      <p>{show.location}</p>
+      <h4>Venue</h4>
+      <p>{show.venue}</p>
     </div>
     <div className="show-card-details">
-      <h4>Move-In</h4>
-      <p>{show.moveIn}</p>
+      <h4>Client</h4>
+      <p>{show.client_name}</p>
     </div>
     <div className="show-card-details">
-      <h4>Show Day(s)</h4>
-      <p>
-        {show.showDayStart} – {show.showDayEnd}
-      </p>
+      <h4>Start</h4>
+      <p>{show.start_date}</p>
     </div>
     <div className="show-card-details">
-      <h4>Move-Out</h4>
-      <p>{show.moveOut}</p>
+      <h4>End</h4>
+      <p>{show.end_date}</p>
     </div>
     <div className="show-card-details">
-      <div>
-        <h4>Confirmed</h4>
-        <p>{show.confirmed}</p>
-      </div>
-      <div>
-        <h4>Pending</h4>
-        <p>{show.pending}</p>
-      </div>
+      <h4>Status</h4>
+      <p>{show.status}</p>
     </div>
   </div>
 )

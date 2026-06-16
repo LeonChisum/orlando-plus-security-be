@@ -5,7 +5,7 @@ import ShowDashboard from '../features/shows/components/ShowDashboard'
 const ShowsPage = () => {
   const token = localStorage.getItem('token')
 
-  if (!token) return <Navigate to="/login" replace />
+  // if (!token) return <Navigate to="/login" replace />
 
   return <ShowDashboard />
 }
