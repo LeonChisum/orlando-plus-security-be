@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/LeonChisum/orlando-plus-security-be#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "bcrypt": "^6.0.0",
     "bluebird": "^3.7.2",
     "concurrently": "^5.2.0",
