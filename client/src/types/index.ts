@@ -111,6 +111,7 @@ export interface Hall {
 }
 
 export type HallInsert = Omit<Hall, 'id' | 'created_at' | 'updated_at'>
+export type HallUpdate = Partial<HallInsert>
 
 // ─── Posts ────────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,7 @@ export interface Post {
 }
 
 export type PostInsert = Omit<Post, 'id' | 'created_at' | 'updated_at'>
+export type PostUpdate = Partial<PostInsert>
 
 // ─── Shifts ───────────────────────────────────────────────────────────────────
 
@@ -150,6 +152,7 @@ export interface Shift {
 }
 
 export type ShiftInsert = Omit<Shift, 'id' | 'created_at' | 'updated_at'>
+export type ShiftUpdate = Partial<ShiftInsert>
 
 // ─── Assignments ──────────────────────────────────────────────────────────────
 
@@ -169,6 +172,7 @@ export interface Assignment {
 }
 
 export type AssignmentInsert = Omit<Assignment, 'id' | 'created_at' | 'updated_at'>
+export type AssignmentUpdate = Partial<AssignmentInsert>
 
 // ─── Availability Tokens ──────────────────────────────────────────────────────
 
@@ -203,6 +207,7 @@ export interface Availability {
 }
 
 export type AvailabilityInsert = Omit<Availability, 'id' | 'created_at' | 'updated_at'>
+export type AvailabilityUpdate = Partial<AvailabilityInsert>
 
 // ─── Overtime Flags ───────────────────────────────────────────────────────────
 
@@ -216,3 +221,5 @@ export interface OvertimeFlag {
   resolved_at?: string
   created_at: string
 }
+
+export type OvertimeFlagInsert = Omit<OvertimeFlag, 'id' | 'created_at'>

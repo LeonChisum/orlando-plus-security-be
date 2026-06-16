@@ -313,7 +313,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 1.1 | Project scaffold (Vite + React + TS + tooling) | ✅ |
 | 1.2 | Supabase schema SQL (all tables, enums, triggers) | ✅ |
 | 1.3 | Row Level Security policies | ✅ |
-| 1.4 | TypeScript types (`client/src/types/index.ts`) | ⬜ |
+| 1.4 | TypeScript types (`client/src/types/index.ts`) | ✅ |
 | 1.5 | Seed data (`supabase/seed.sql`) | ⬜ |
 | 1.6 | Supabase Auth + protected routes | ⬜ |
 | 1.7 | Roster list view + `useWorkers` hook | ⬜ |
@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.3 — Row Level Security policies  
-**Next ticket to start:** 1.4 — TypeScript types (`client/src/types/index.ts`)  
+**Last completed ticket:** 1.4 — TypeScript types (`client/src/types/index.ts`)  
+**Next ticket to start:** 1.5 — Seed data (`supabase/seed.sql`)  
 **Blockers / open questions:** Migration 002_rls.sql must be applied manually via Supabase dashboard SQL editor (no local CLI config yet)  
-**Notes:** RLS enabled on all 9 tables. Authenticated users get full access. Anon blocked everywhere. Phase 7 token-based anon policies are written but commented out in `supabase/migrations/002_rls.sql`.
+**Notes:** All 9 tables typed with Insert/Update variants. `Update` types added for Hall, Post, Shift, Assignment, Availability. `OvertimeFlagInsert` added. Types pass strict `tsc --noEmit` check.
