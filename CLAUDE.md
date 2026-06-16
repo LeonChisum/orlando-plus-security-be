@@ -310,7 +310,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 | # | Ticket | Status |
 |---|---|---|
-| 1.1 | Project scaffold (Vite + React + TS + tooling) | ⬜ |
+| 1.1 | Project scaffold (Vite + React + TS + tooling) | ✅ |
 | 1.2 | Supabase schema SQL (all tables, enums, triggers) | ⬜ |
 | 1.3 | Row Level Security policies | ⬜ |
 | 1.4 | TypeScript types (`client/src/types/index.ts`) | ⬜ |
@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** —  
-**Next ticket to start:** 1.1 — Project Scaffold  
-**Blockers / open questions:** None  
-**Notes:** Existing Express backend (routes/auth/guards/shows) is being retained. Mongoose is being replaced with Supabase (Postgres). Frontend is migrating from CRA + plain JS + Redux → Vite + TypeScript + TanStack Query.
+**Last completed ticket:** 1.1 — Project Scaffold  
+**Next ticket to start:** 1.2 — Supabase Schema SQL  
+**Blockers / open questions:** Need Supabase project created + env vars set before 1.2 can be connected  
+**Notes:** Existing Express backend retained. client/ fully migrated: CRA → Vite 5, plain JS → TypeScript (strict), Redux → TanStack Query v5, react-router v5 → v6 data router. All CSS preserved. `tsc --noEmit` and `vite build` both pass clean.
