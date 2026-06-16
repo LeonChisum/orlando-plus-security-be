@@ -1,18 +1,30 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import Logo from '../images/OPSLogo.png'
 import './Login.css'
 
 const LoginPage = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [credentials, setCredentials] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setCredentials({ ...credentials, [e.target.name]: e.target.value })
 
-  const handleSubmit = () => {
-    // TODO ticket 1.6: wire up Supabase auth
-    navigate('/shows')
+  const handleSubmit = async () => {
+    setError('')
+    setIsSubmitting(true)
+    try {
+      await login(credentials.email, credentials.password)
+      navigate('/shows')
+    } catch {
+      setError('Invalid email or password.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -29,7 +41,13 @@ const LoginPage = () => {
           value={credentials.password}
           onChange={handleChange}
         />
-        <input type="button" value="Login" onClick={handleSubmit} />
+        {error && <p className="login-error">{error}</p>}
+        <input
+          type="button"
+          value={isSubmitting ? 'Logging in...' : 'Login'}
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        />
       </form>
     </div>
   )

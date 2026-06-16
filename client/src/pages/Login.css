@@ -40,3 +40,9 @@
   margin-top: 13%;
   background: #d4af37;
 }
+
+.login-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin: 0 0 4% 0;
+}

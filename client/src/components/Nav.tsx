@@ -1,12 +1,13 @@
-import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import './Nav.css'
 
 const Nav = () => {
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
+  const handleLogout = async () => {
+    await logout()
     navigate('/login')
   }
 
