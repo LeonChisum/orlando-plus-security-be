@@ -24,9 +24,10 @@ const pillBase: React.CSSProperties = {
 
 interface Props {
   show: Show
+  postCount?: number
 }
 
-const ShowCard = ({ show }: Props) => (
+const ShowCard = ({ show, postCount }: Props) => (
   <div className="show-card-container">
     <div className="show-card-title">
       <h3>{show.name}</h3>
@@ -45,10 +46,13 @@ const ShowCard = ({ show }: Props) => (
         {show.start_date} – {show.end_date}
       </div>
     </div>
-    <div className="show-card-status">
-      <span
-        style={{ ...pillBase, ...STATUS_STYLES[show.status] }}
-      >
+    <div className="show-card-meta">
+      {postCount !== undefined && (
+        <span className="show-card-post-count">
+          {postCount} {postCount === 1 ? 'post' : 'posts'}
+        </span>
+      )}
+      <span style={{ ...pillBase, ...STATUS_STYLES[show.status] }}>
         {STATUS_LABELS[show.status]}
       </span>
     </div>

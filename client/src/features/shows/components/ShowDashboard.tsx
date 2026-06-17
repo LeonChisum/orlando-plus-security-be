@@ -1,12 +1,14 @@
-import React from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useShows } from '../hooks/useShows'
 import ShowCard from './ShowCard'
+import ShowModal from './ShowModal'
 import Loader from '../../../components/Loader'
 import './Show.css'
 
 const ShowDashboard = () => {
   const { data: shows, isLoading, isError } = useShows()
+  const [showModal, setShowModal] = useState(false)
 
   if (isLoading) return <Loader />
 
@@ -23,25 +25,33 @@ const ShowDashboard = () => {
     <div className="sd-container">
       <div className="sd-header">
         <div className="sd-title">
-          <h1>Upcoming Shows</h1>
+          <h1>Shows</h1>
         </div>
+        <button className="btn btn--primary" onClick={() => setShowModal(true)}>
+          + New show
+        </button>
       </div>
+
       <div className="sd-show-container">
         {shows && shows.length === 0 && (
           <div className="sd-empty">
-            <p>No shows yet.</p>
+            <p className="sd-empty-headline">No shows yet</p>
+            <p className="sd-empty-sub">Create a show to get started, then import a buy order.</p>
+            <button className="btn btn--primary" onClick={() => setShowModal(true)}>
+              + New show
+            </button>
           </div>
         )}
         {shows?.map((show) => (
-          <Link
-            key={show.id}
-            to={`/shows/${show.id}`}
-            state={{ selectedShow: show }}
-          >
+          <Link key={show.id} to={`/shows/${show.id}`}>
             <ShowCard show={show} />
           </Link>
         ))}
       </div>
+
+      {showModal && (
+        <ShowModal mode="add" onClose={() => setShowModal(false)} />
+      )}
     </div>
   )
 }
