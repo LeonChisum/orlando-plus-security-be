@@ -317,8 +317,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 1.5 | Seed data (`supabase/seed.sql`) | ✅ |
 | 1.6 | Supabase Auth + protected routes | ✅ |
 | 1.7 | Roster list view + `useWorkers` hook | ✅ |
-| 1.8 | Add / edit worker form | 🔵 |
-| 1.9 | Deactivate / reactivate (soft delete) | ⬜ |
+| 1.8 | Add / edit worker form | ✅ |
+| 1.9 | Deactivate / reactivate (soft delete) | ✅ |
 | 1.10 | Shell layout + stubbed navigation | ⬜ |
 
 ---
@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.8 — Add / edit worker form  
-**Next ticket to start:** 1.9 — Deactivate / reactivate (soft delete)  
+**Last completed ticket:** 1.9 — Deactivate / reactivate (soft delete)  
+**Next ticket to start:** 1.10 — Shell layout + stubbed navigation  
 **Blockers / open questions:** 002_rls.sql is missing GRANT statements for `authenticated` role — fixed in file, but must be applied manually in Supabase Studio SQL editor on local instances (not yet run through CLI). Run the grants block or `supabase db reset` to apply.  
-**Notes:** `useWorkers` + `useWorkerMutations` both query Supabase client directly (no Express routes for workers). WorkerModal opens in 'add' mode from "+ Add worker" button; in 'edit' mode by clicking any row. WorkerForm validates first/last/email, maps to `WorkerInsert`, closes modal on success. `is_active` toggle only shown in edit mode (deactivate flow is ticket 1.9). Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts).
+**Notes:** `useToggleWorkerActive` in `useWorkerMutations.ts` handles deactivate/reactivate as a standalone mutation (separate from the form save). WorkerForm no longer has an `is_active` checkbox — active workers show a "Deactivate" button (danger-ghost) that requires inline confirm; inactive workers show a "Reactivate" button (success) that fires immediately. Both close the modal on success. The save payload preserves `worker.is_active` on edit so form saves don't accidentally flip the status. Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts).

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useWorkers } from '../hooks/useWorkers'
+import { useToggleWorkerActive } from '../hooks/useWorkerMutations'
 import WorkerRow from './WorkerRow'
 import WorkerModal from './WorkerModal'
+import ConfirmModal from './ConfirmModal'
 import Loader from '../../../components/Loader'
 import type { Worker, WorkerType } from '../../../types/index'
 import './Roster.css'
@@ -14,6 +16,9 @@ const RosterTable = () => {
   const [includeInactive, setIncludeInactive] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [modal, setModal] = useState<ModalState>(null)
+  const [confirmWorker, setConfirmWorker] = useState<Worker | null>(null)
+
+  const toggleActive = useToggleWorkerActive()
 
   const { data: workers, isLoading, isError } = useWorkers({
     worker_type: typeFilter === 'all' ? undefined : typeFilter,
@@ -100,6 +105,7 @@ const RosterTable = () => {
                 <th>Phone</th>
                 <th>Email</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -108,6 +114,7 @@ const RosterTable = () => {
                   key={worker.id}
                   worker={worker}
                   onClick={(w) => setModal({ mode: 'edit', worker: w })}
+                  onDeactivate={(w) => setConfirmWorker(w)}
                 />
               ))}
             </tbody>
@@ -120,6 +127,23 @@ const RosterTable = () => {
           mode={modal.mode}
           worker={modal.mode === 'edit' ? modal.worker : undefined}
           onClose={() => setModal(null)}
+        />
+      )}
+
+      {confirmWorker && (
+        <ConfirmModal
+          title="Deactivate worker"
+          message={`Deactivate ${confirmWorker.first_name} ${confirmWorker.last_name}? They will be hidden from active rosters.`}
+          confirmLabel="Deactivate"
+          danger
+          isPending={toggleActive.isPending}
+          onConfirm={() =>
+            toggleActive.mutate(
+              { id: confirmWorker.id, is_active: false },
+              { onSuccess: () => setConfirmWorker(null) }
+            )
+          }
+          onClose={() => setConfirmWorker(null)}
         />
       )}
     </>

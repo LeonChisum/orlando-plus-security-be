@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useCreateWorker, useUpdateWorker } from '../hooks/useWorkerMutations'
+import { useCreateWorker, useUpdateWorker, useToggleWorkerActive } from '../hooks/useWorkerMutations'
 import type { Worker, WorkerInsert, WorkerType } from '../../../types/index'
 
 interface Props {
@@ -16,7 +16,6 @@ interface FormState {
   position: string
   license_number: string
   is_supervisor: boolean
-  is_active: boolean
 }
 
 const empty: FormState = {
@@ -28,7 +27,6 @@ const empty: FormState = {
   position: '',
   license_number: '',
   is_supervisor: false,
-  is_active: true,
 }
 
 const toFormState = (w: Worker): FormState => ({
@@ -40,7 +38,6 @@ const toFormState = (w: Worker): FormState => ({
   position: w.position ?? '',
   license_number: w.d_license?.number ?? '',
   is_supervisor: w.is_supervisor,
-  is_active: w.is_active,
 })
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -60,10 +57,12 @@ const WorkerForm = ({ worker, onClose }: Props) => {
   const isEdit = !!worker
   const [form, setForm] = useState<FormState>(isEdit ? toFormState(worker) : empty)
   const [error, setError] = useState<string | null>(null)
+  const [confirmingDeactivate, setConfirmingDeactivate] = useState(false)
 
   const create = useCreateWorker()
   const update = useUpdateWorker()
-  const isPending = create.isPending || update.isPending
+  const toggle = useToggleWorkerActive()
+  const isPending = create.isPending || update.isPending || toggle.isPending
 
   const set = (field: keyof FormState, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -85,7 +84,7 @@ const WorkerForm = ({ worker, onClose }: Props) => {
       worker_type: form.worker_type,
       position: form.position.trim() || undefined,
       is_supervisor: form.is_supervisor,
-      is_active: form.is_active,
+      is_active: isEdit ? worker.is_active : true,
       d_license: form.worker_type === 'guard' && form.license_number.trim()
         ? { blue_card: false, number: form.license_number.trim() }
         : undefined,
@@ -188,27 +187,66 @@ const WorkerForm = ({ worker, onClose }: Props) => {
           />
           Supervisor
         </label>
-        {isEdit && (
-          <label className="wf-check">
-            <input
-              type="checkbox"
-              checked={form.is_active}
-              onChange={(e) => set('is_active', e.target.checked)}
-            />
-            Active
-          </label>
-        )}
       </div>
 
       {error && <p className="wf-error">{error}</p>}
 
-      <div className="wf-actions">
-        <button className="btn btn--ghost" onClick={onClose} disabled={isPending}>
-          Cancel
-        </button>
-        <button className="btn btn--primary" onClick={handleSubmit} disabled={isPending}>
-          {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add worker'}
-        </button>
+      <div className="wf-actions wf-actions--split">
+        {isEdit && (
+          confirmingDeactivate ? (
+            <div className="wf-deactivate-confirm">
+              <span>Deactivate {worker.first_name}?</span>
+              <button
+                className="btn btn--ghost"
+                onClick={() => setConfirmingDeactivate(false)}
+                disabled={isPending}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn--danger"
+                onClick={() =>
+                  toggle.mutate(
+                    { id: worker.id, is_active: false },
+                    { onSuccess: onClose, onError: (e) => setError(e.message) }
+                  )
+                }
+                disabled={isPending}
+              >
+                {toggle.isPending ? 'Deactivating…' : 'Confirm'}
+              </button>
+            </div>
+          ) : worker.is_active ? (
+            <button
+              className="btn btn--danger-ghost"
+              onClick={() => setConfirmingDeactivate(true)}
+              disabled={isPending}
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              className="btn btn--success"
+              onClick={() =>
+                toggle.mutate(
+                  { id: worker.id, is_active: true },
+                  { onSuccess: onClose, onError: (e) => setError(e.message) }
+                )
+              }
+              disabled={isPending}
+            >
+              {toggle.isPending ? 'Reactivating…' : 'Reactivate'}
+            </button>
+          )
+        )}
+        <div className="wf-actions-right">
+          <button className="btn btn--ghost" onClick={onClose} disabled={isPending}>
+            Cancel
+          </button>
+          <button className="btn btn--primary" onClick={handleSubmit} disabled={isPending}>
+            {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Add worker'}
+          </button>
+        </div>
       </div>
     </div>
   )
