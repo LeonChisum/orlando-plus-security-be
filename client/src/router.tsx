@@ -4,6 +4,7 @@ import RequireAuth from './components/RequireAuth'
 import LoginPage from './pages/LoginPage'
 import ShowsPage from './pages/ShowsPage'
 import ShowDetailPage from './pages/ShowDetailPage'
+import ImportPage from './pages/ImportPage'
 import RosterPage from './pages/RosterPage'
 
 export const router = createBrowserRouter([
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/shows', element: <ShowsPage /> },
           { path: '/shows/:id', element: <ShowDetailPage /> },
+          { path: '/shows/:id/import', element: <ImportPage /> },
           { path: '/roster', element: <RosterPage /> },
         ],
       },

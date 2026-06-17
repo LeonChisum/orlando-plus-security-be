@@ -623,8 +623,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 | Phase | Epic | Status |
 |---|---|---|
-| 1 | Scaffold + Schema + Seed + Roster CRUD | 🔵 Active |
-| 2 | Excel Buy Order Import | ⬜ |
+| 1 | Scaffold + Schema + Seed + Roster CRUD | ✅ |
+| 2 | Excel Buy Order Import | 🔵 Active |
 | 3 | Shift Split Engine | ⬜ |
 | 4 | Assignment Board UI | ⬜ |
 | 5 | Conflict + Overtime Detection | ⬜ |
@@ -656,11 +656,26 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 ---
 
+## Phase 2 Tickets
+
+| # | Ticket | Status |
+|---|---|---|
+| 2.1 | Show setup form + list page | ✅ |
+| 2.2 | File upload + SheetJS parse | ✅ |
+| 2.3 | Column mapping UI | 🔵 Active |
+| 2.4 | Hall tagging step | ⬜ |
+| 2.5 | Review + confirm import | ⬜ |
+| 2.6 | Error handling + edge cases | ⬜ |
+| 2.7 | Full show detail page (posts by hall) | ⬜ |
+| 2.8 | Import session recovery (sessionStorage) | ⬜ |
+
+---
+
 ## Session Handoff
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.9 — Deactivate / reactivate (soft delete)  
-**Next ticket to start:** 1.10 — Shell layout + stubbed navigation  
-**Blockers / open questions:** 002_rls.sql is missing GRANT statements for `authenticated` role — fixed in file, but must be applied manually in Supabase Studio SQL editor on local instances (not yet run through CLI). Run the grants block or `supabase db reset` to apply.  
-**Notes:** `useToggleWorkerActive` in `useWorkerMutations.ts` handles deactivate/reactivate as a standalone mutation (separate from the form save). WorkerForm no longer has an `is_active` checkbox — active workers show a "Deactivate" button (danger-ghost) that requires inline confirm; inactive workers show a "Reactivate" button (success) that fires immediately. Both close the modal on success. The save payload preserves `worker.is_active` on edit so form saves don't accidentally flip the status. Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts).
+**Last completed ticket:** 2.2 — File upload + SheetJS parse  
+**Next ticket to start:** 2.3 — Column mapping UI  
+**Blockers / open questions:** None.  
+**Notes:** 2.2 delivers the import wizard at `/shows/:id/import` (`ImportPage`). Step 1 (`FileUploadStep`) handles drag-and-drop + click-to-browse, 10 MB guard, .xlsx/.xls validation, SheetJS client-side parse via `parseWorkbook`, multi-sheet tab selector, and a 30-row scrollable preview table. "Continue" advances to a stub Step 2 placeholder; "Back" from Step 1 returns to show detail (state preserved on back-navigation). `parseTime.ts` normalizes HHMM / HH:MM / Excel fractions with 5 Vitest tests passing. `parseExcel.ts` exports `parseWorkbook` + `extractPostRows(rows, mapping)` — mapping logic is implemented but 2.3's column mapping UI is needed before it runs. Types `RawImportRow`, `MappedPostRow`, `ColumnMapping` added to `types/index.ts`. "Import buy order" button on ShowDetailPage (header + Overview tab) now navigates to the import route. `splitTimeRange` helper in `parseTime.ts` handles "0600-0000" range strings used by some buy orders.

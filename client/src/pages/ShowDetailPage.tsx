@@ -59,7 +59,7 @@ const ShowDetailPage = () => {
             <button className="btn btn--ghost" onClick={() => setEditModal(true)}>
               Edit
             </button>
-            <button className="btn btn--primary" disabled>
+            <button className="btn btn--primary" onClick={() => navigate(`/shows/${id}/import`)}>
               Import buy order
             </button>
           </div>
@@ -91,7 +91,7 @@ const ShowDetailPage = () => {
           <p className="show-detail-empty-sub">
             Import a buy order to create posts and shifts for this show.
           </p>
-          <button className="btn btn--primary" disabled>
+          <button className="btn btn--primary" onClick={() => navigate(`/shows/${id}/import`)}>
             Import buy order
           </button>
         </div>
