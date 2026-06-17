@@ -12,12 +12,24 @@ type ModalState = { mode: 'add' } | { mode: 'edit'; worker: Worker } | null
 const RosterTable = () => {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [includeInactive, setIncludeInactive] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [modal, setModal] = useState<ModalState>(null)
 
   const { data: workers, isLoading, isError } = useWorkers({
     worker_type: typeFilter === 'all' ? undefined : typeFilter,
     include_inactive: includeInactive,
   })
+
+  const filteredWorkers = (() => {
+    if (!workers || !searchQuery.trim()) return workers
+    const q = searchQuery.trim().toLowerCase()
+    return workers.filter((w) => {
+      const fullName = `${w.first_name} ${w.last_name}`.toLowerCase()
+      const reverseName = `${w.last_name} ${w.first_name}`.toLowerCase()
+      const license = (w.d_license?.number ?? '').toLowerCase()
+      return fullName.includes(q) || reverseName.includes(q) || license.includes(q)
+    })
+  })()
 
   if (isLoading) return <Loader />
 
@@ -62,11 +74,20 @@ const RosterTable = () => {
           </div>
         </div>
 
-        <div className="roster-count">
-          {workers?.length ?? 0} {workers?.length === 1 ? 'person' : 'people'}
+        <div className="roster-search">
+          <input
+            type="search"
+            placeholder="Search by name or license #…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
-        {workers?.length === 0 ? (
+        <div className="roster-count">
+          {filteredWorkers?.length ?? 0} {filteredWorkers?.length === 1 ? 'person' : 'people'}
+        </div>
+
+        {filteredWorkers?.length === 0 ? (
           <p className="roster-empty">No workers match the current filter.</p>
         ) : (
           <table className="roster-table">
@@ -74,6 +95,7 @@ const RosterTable = () => {
               <tr>
                 <th>Name</th>
                 <th>Type</th>
+                <th>License #</th>
                 <th>Position</th>
                 <th>Phone</th>
                 <th>Email</th>
@@ -81,7 +103,7 @@ const RosterTable = () => {
               </tr>
             </thead>
             <tbody>
-              {workers?.map((worker) => (
+              {filteredWorkers?.map((worker) => (
                 <WorkerRow
                   key={worker.id}
                   worker={worker}

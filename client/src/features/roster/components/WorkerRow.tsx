@@ -24,6 +24,7 @@ const WorkerRow = ({ worker, onClick }: Props) => {
           {worker.worker_type}
         </span>
       </td>
+      <td>{worker.worker_type === 'guard' ? (worker.d_license?.number ?? '—') : '—'}</td>
       <td>{worker.position ?? '—'}</td>
       <td>{worker.phone ?? '—'}</td>
       <td>{worker.email}</td>

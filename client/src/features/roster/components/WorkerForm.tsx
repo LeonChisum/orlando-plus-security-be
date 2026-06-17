@@ -14,6 +14,7 @@ interface FormState {
   phone: string
   worker_type: WorkerType
   position: string
+  license_number: string
   is_supervisor: boolean
   is_active: boolean
 }
@@ -25,6 +26,7 @@ const empty: FormState = {
   phone: '',
   worker_type: 'guard',
   position: '',
+  license_number: '',
   is_supervisor: false,
   is_active: true,
 }
@@ -36,9 +38,23 @@ const toFormState = (w: Worker): FormState => ({
   phone: w.phone ?? '',
   worker_type: w.worker_type,
   position: w.position ?? '',
+  license_number: w.d_license?.number ?? '',
   is_supervisor: w.is_supervisor,
   is_active: w.is_active,
 })
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_DIGITS_RE = /^\d{10}$/
+
+const validate = (form: FormState): string | null => {
+  if (form.first_name.trim().length < 2) return 'First name must be at least 2 characters.'
+  if (form.last_name.trim().length < 2) return 'Last name must be at least 2 characters.'
+  if (!EMAIL_RE.test(form.email.trim())) return 'Enter a valid email address.'
+  const digits = form.phone.replace(/\D/g, '')
+  if (digits.length > 0 && !PHONE_DIGITS_RE.test(digits)) return 'Phone must be a 10-digit US number.'
+  if (form.worker_type === 'guard' && !form.license_number.trim()) return 'License number is required for guards.'
+  return null
+}
 
 const WorkerForm = ({ worker, onClose }: Props) => {
   const isEdit = !!worker
@@ -55,8 +71,9 @@ const WorkerForm = ({ worker, onClose }: Props) => {
   const handleSubmit = () => {
     setError(null)
 
-    if (!form.first_name.trim() || !form.last_name.trim() || !form.email.trim()) {
-      setError('First name, last name, and email are required.')
+    const validationError = validate(form)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -64,11 +81,14 @@ const WorkerForm = ({ worker, onClose }: Props) => {
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim() || undefined,
+      phone: form.phone.replace(/\D/g, '') || undefined,
       worker_type: form.worker_type,
       position: form.position.trim() || undefined,
       is_supervisor: form.is_supervisor,
       is_active: form.is_active,
+      d_license: form.worker_type === 'guard' && form.license_number.trim()
+        ? { blue_card: false, number: form.license_number.trim() }
+        : undefined,
     }
 
     if (isEdit) {
@@ -145,6 +165,19 @@ const WorkerForm = ({ worker, onClose }: Props) => {
           />
         </div>
       </div>
+
+      {form.worker_type === 'guard' && (
+        <div className="wf-row wf-row--1">
+          <div className="wf-field">
+            <label>Class D License # *</label>
+            <input
+              value={form.license_number}
+              onChange={(e) => set('license_number', e.target.value)}
+              placeholder="e.g. D1234567"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="wf-row wf-row--checks">
         <label className="wf-check">

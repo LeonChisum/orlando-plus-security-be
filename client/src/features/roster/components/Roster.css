@@ -58,6 +58,25 @@
   color: #555;
 }
 
+.roster-search {
+  margin-bottom: 0.75rem;
+}
+
+.roster-search input {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #222;
+}
+
+.roster-search input:focus {
+  outline: none;
+  border-color: #1a1a2e;
+}
+
 .roster-count {
   font-size: 0.8rem;
   color: #888;
@@ -247,6 +266,10 @@
 
 .wf-row--2 {
   grid-template-columns: 1fr 1fr;
+}
+
+.wf-row--1 {
+  grid-template-columns: 1fr;
 }
 
 .wf-row--checks {
