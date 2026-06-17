@@ -310,14 +310,14 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 | # | Ticket | Status |
 |---|---|---|
-| 1.1 | Project scaffold (Vite + React + TS + tooling) | ⬜ |
-| 1.2 | Supabase schema SQL (all tables, enums, triggers) | ⬜ |
-| 1.3 | Row Level Security policies | ⬜ |
-| 1.4 | TypeScript types (`client/src/types/index.ts`) | ⬜ |
-| 1.5 | Seed data (`supabase/seed.sql`) | ⬜ |
-| 1.6 | Supabase Auth + protected routes | ⬜ |
-| 1.7 | Roster list view + `useWorkers` hook | ⬜ |
-| 1.8 | Add / edit worker form | ⬜ |
+| 1.1 | Project scaffold (Vite + React + TS + tooling) | ✅ |
+| 1.2 | Supabase schema SQL (all tables, enums, triggers) | ✅ |
+| 1.3 | Row Level Security policies | ✅ |
+| 1.4 | TypeScript types (`client/src/types/index.ts`) | ✅ |
+| 1.5 | Seed data (`supabase/seed.sql`) | ✅ |
+| 1.6 | Supabase Auth + protected routes | ✅ |
+| 1.7 | Roster list view + `useWorkers` hook | ✅ |
+| 1.8 | Add / edit worker form | 🔵 |
 | 1.9 | Deactivate / reactivate (soft delete) | ⬜ |
 | 1.10 | Shell layout + stubbed navigation | ⬜ |
 
@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** —  
-**Next ticket to start:** 1.1 — Project Scaffold  
-**Blockers / open questions:** None  
-**Notes:** Existing Express backend (routes/auth/guards/shows) is being retained. Mongoose is being replaced with Supabase (Postgres). Frontend is migrating from CRA + plain JS + Redux → Vite + TypeScript + TanStack Query.
+**Last completed ticket:** 1.8 — Add / edit worker form  
+**Next ticket to start:** 1.9 — Deactivate / reactivate (soft delete)  
+**Blockers / open questions:** 002_rls.sql is missing GRANT statements for `authenticated` role — fixed in file, but must be applied manually in Supabase Studio SQL editor on local instances (not yet run through CLI). Run the grants block or `supabase db reset` to apply.  
+**Notes:** `useWorkers` + `useWorkerMutations` both query Supabase client directly (no Express routes for workers). WorkerModal opens in 'add' mode from "+ Add worker" button; in 'edit' mode by clicking any row. WorkerForm validates first/last/email, maps to `WorkerInsert`, closes modal on success. `is_active` toggle only shown in edit mode (deactivate flow is ticket 1.9). Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts).

@@ -1,20 +1,14 @@
-const jwt = require('jsonwebtoken');
+const { supabase } = require('../lib/supabase')
 
-function auth(req, res, next) {
-	const token = req.header('authorization');
+async function auth(req, res, next) {
+  const token = req.header('authorization')
+  if (!token) return res.status(401).json({ message: 'authorization denied' })
 
-	//check for token
-	if (!token) return res.status(401).json({ message: 'authorization denied' });
+  const { data: { user }, error } = await supabase.auth.admin.getUser(token)
+  if (error || !user) return res.status(401).json({ message: 'authorization denied' })
 
-	try {
-		//verify token
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-		req.user = decoded;
-		next();
-	} catch (error) {
-		res.status(400).json({ message: 'could not authorize token' });
-	}
+  req.user = { id: user.id }
+  next()
 }
 
-module.exports = auth;
+module.exports = auth

@@ -8,7 +8,5 @@ server.use(cors());
 
 //Routes
 server.use('/auth', require('./auth/authentication'));
-server.use('/guards', require('./routes/guardsRouter'));
-server.use('/shows', require('./routes/showRouter'));
 
 module.exports = server;
