@@ -1,11 +1,13 @@
-import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Nav from './Nav'
+import styles from './Layout.module.css'
 
 const Layout = () => (
-  <div className="app-container">
+  <div className={styles.shell}>
     <Nav />
-    <Outlet />
+    <main className={styles.canvas}>
+      <Outlet />
+    </main>
   </div>
 )
 

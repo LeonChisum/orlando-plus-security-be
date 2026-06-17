@@ -3,9 +3,10 @@ import type { Worker } from '../../../types/index'
 interface Props {
   worker: Worker
   onClick: (worker: Worker) => void
+  onDeactivate?: (worker: Worker) => void
 }
 
-const WorkerRow = ({ worker, onClick }: Props) => {
+const WorkerRow = ({ worker, onClick, onDeactivate }: Props) => {
   const fullName = `${worker.last_name}, ${worker.first_name}`
 
   return (
@@ -32,6 +33,16 @@ const WorkerRow = ({ worker, onClick }: Props) => {
         <span className={`badge badge--status badge--${worker.is_active ? 'active' : 'inactive'}`}>
           {worker.is_active ? 'Active' : 'Inactive'}
         </span>
+      </td>
+      <td className="row-actions">
+        {worker.is_active && onDeactivate && (
+          <button
+            className="row-deactivate-btn btn btn--danger-ghost"
+            onClick={(e) => { e.stopPropagation(); onDeactivate(worker) }}
+          >
+            Deactivate
+          </button>
+        )}
       </td>
     </tr>
   )

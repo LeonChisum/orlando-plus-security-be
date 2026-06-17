@@ -42,3 +42,24 @@ export const useUpdateWorker = () => {
     },
   })
 }
+
+export const useToggleWorkerActive = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<Worker, Error, { id: string; is_active: boolean }>({
+    mutationFn: async ({ id, is_active }) => {
+      const { data: row, error } = await supabase
+        .from('workers')
+        .update({ is_active })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return row as Worker
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workers'] })
+    },
+  })
+}

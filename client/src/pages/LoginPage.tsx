@@ -27,28 +27,53 @@ const LoginPage = () => {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSubmit()
+  }
+
   return (
-    <div className="login-form-container">
-      <img src={Logo} alt="OPS logo" />
-      <h3>OPS Scheduler</h3>
-      <form>
-        <label>Email Address</label>
-        <input name="email" value={credentials.email} onChange={handleChange} />
-        <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          value={credentials.password}
-          onChange={handleChange}
-        />
-        {error && <p className="login-error">{error}</p>}
-        <input
-          type="button"
-          value={isSubmitting ? 'Logging in...' : 'Login'}
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-        />
-      </form>
+    <div className="login-root">
+      <div className="login-card">
+        <img src={Logo} alt="Orlando Plus Security logo" className="login-logo" />
+        <p className="login-eyebrow">Supervisor Access</p>
+        <h1 className="login-title">OPS Scheduler</h1>
+
+        <div className="login-form" onKeyDown={handleKeyDown}>
+          <div className="login-field">
+            <label htmlFor="login-email">Email Address</label>
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={credentials.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="login-field">
+            <label htmlFor="login-password">Password</label>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={credentials.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
+          </div>
+          {error && <p className="login-error">{error}</p>}
+          <button
+            className="login-submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting ? 'Signing in…' : 'Sign In'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,27 @@
 import type { Show } from '../../../types/index'
 
+const STATUS_LABELS: Record<Show['status'], string> = {
+  draft: 'Draft',
+  active: 'Active',
+  closed: 'Closed',
+}
+
+const STATUS_STYLES: Record<Show['status'], React.CSSProperties> = {
+  draft: { background: 'var(--surface-sunken)', color: 'var(--text-muted)', border: '1px solid var(--border)' },
+  active: { background: 'var(--ok-bg)', color: 'var(--ok-500)' },
+  closed: { background: 'var(--surface-sunken)', color: 'var(--text-faint)', border: '1px solid var(--border)' },
+}
+
+const pillBase: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '0.2rem 0.65rem',
+  borderRadius: 'var(--radius-pill)',
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  letterSpacing: '0.05em',
+  textTransform: 'uppercase',
+}
+
 interface Props {
   show: Show
 }
@@ -10,24 +32,25 @@ const ShowCard = ({ show }: Props) => (
       <h3>{show.name}</h3>
     </div>
     <div className="show-card-details">
-      <h4>Venue</h4>
-      <p>{show.venue}</p>
+      <div className="show-card-detail-row">
+        <i className="fas fa-map-marker-alt" />
+        {show.venue}
+      </div>
+      <div className="show-card-detail-row">
+        <i className="fas fa-building" />
+        {show.client_name}
+      </div>
+      <div className="show-card-detail-row">
+        <i className="far fa-calendar" />
+        {show.start_date} – {show.end_date}
+      </div>
     </div>
-    <div className="show-card-details">
-      <h4>Client</h4>
-      <p>{show.client_name}</p>
-    </div>
-    <div className="show-card-details">
-      <h4>Start</h4>
-      <p>{show.start_date}</p>
-    </div>
-    <div className="show-card-details">
-      <h4>End</h4>
-      <p>{show.end_date}</p>
-    </div>
-    <div className="show-card-details">
-      <h4>Status</h4>
-      <p>{show.status}</p>
+    <div className="show-card-status">
+      <span
+        style={{ ...pillBase, ...STATUS_STYLES[show.status] }}
+      >
+        {STATUS_LABELS[show.status]}
+      </span>
     </div>
   </div>
 )

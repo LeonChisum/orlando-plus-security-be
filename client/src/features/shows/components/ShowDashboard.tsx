@@ -13,16 +13,25 @@ const ShowDashboard = () => {
   if (isError)
     return (
       <div className="sd-container">
-        <p>Unable to load shows. Make sure the backend is running.</p>
+        <p style={{ color: 'var(--danger-500)' }}>
+          Unable to load shows. Make sure the backend is running.
+        </p>
       </div>
     )
 
   return (
     <div className="sd-container">
-      <div className="sd-title">
-        <h1>Upcoming Shows</h1>
+      <div className="sd-header">
+        <div className="sd-title">
+          <h1>Upcoming Shows</h1>
+        </div>
       </div>
       <div className="sd-show-container">
+        {shows && shows.length === 0 && (
+          <div className="sd-empty">
+            <p>No shows yet.</p>
+          </div>
+        )}
         {shows?.map((show) => (
           <Link
             key={show.id}
