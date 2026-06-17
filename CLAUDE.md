@@ -327,7 +327,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.5 — Seed data (`supabase/seed.sql`)  
-**Next ticket to start:** 1.6 — Supabase Auth + protected routes  
-**Blockers / open questions:** Migration 002_rls.sql must be applied manually via Supabase dashboard SQL editor (no local CLI config yet). Run `supabase db reset` to apply seed.  
-**Notes:** Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts). 16 shifts total: 13 filled, 1 no_show (Tyrone Jackson, North Gate 11-17), 1 open (VIP Entrance, Sept 6). Staffers (Maria, Ashley) assigned only to staffing posts. Inactive guard (Raymond Foster) has no assignments.
+**Last completed ticket:** 1.7 — Roster list view + `useWorkers` hook  
+**Next ticket to start:** 1.8 — Add / edit worker form  
+**Blockers / open questions:** Migration 002_rls.sql must be applied manually via Supabase dashboard SQL editor (no local CLI config yet). Run `supabase db reset` to apply seed. Tickets 1.6 (Supabase Auth + protected routes) was already implemented — AuthContext uses Supabase Auth, RequireAuth guards protected routes.  
+**Notes:** `useWorkers` queries Supabase client directly (not Express `/guards`) since auth is Supabase-based and RLS allows authenticated users full access. Accepts `{ worker_type?, include_inactive? }` filters. RosterTable has All/Guards/Staffers tab filter and "Show inactive" toggle. Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts). 16 shifts total: 13 filled, 1 no_show (Tyrone Jackson, North Gate 11-17), 1 open (VIP Entrance, Sept 6). Staffers (Maria, Ashley) assigned only to staffing posts. Inactive guard (Raymond Foster) has no assignments.

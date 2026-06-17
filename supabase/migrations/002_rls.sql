@@ -14,6 +14,25 @@
 --   anon + valid token → narrow access for guard webform + ack links
 -- ============================================================
 
+-- ============================================================
+-- GRANTS — table-level access for Postgres roles
+-- RLS policies control which rows are visible; these GRANTs
+-- control whether the role can touch the table at all.
+-- anon gets no grants here — blocked at the table level until
+-- Phase 7 adds token-based access.
+-- ============================================================
+
+grant select, insert, update, delete on workers             to authenticated;
+grant select, insert, update, delete on shows               to authenticated;
+grant select, insert, update, delete on halls               to authenticated;
+grant select, insert, update, delete on posts               to authenticated;
+grant select, insert, update, delete on shifts              to authenticated;
+grant select, insert, update, delete on assignments         to authenticated;
+grant select, insert, update, delete on availability        to authenticated;
+grant select, insert, update, delete on availability_tokens to authenticated;
+grant select, insert, update, delete on overtime_flags      to authenticated;
+
+
 -- Enable RLS on every table
 alter table workers             enable row level security;
 alter table shows               enable row level security;
