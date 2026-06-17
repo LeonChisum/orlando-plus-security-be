@@ -2,13 +2,17 @@ import type { Worker } from '../../../types/index'
 
 interface Props {
   worker: Worker
+  onClick: (worker: Worker) => void
 }
 
-const WorkerRow = ({ worker }: Props) => {
+const WorkerRow = ({ worker, onClick }: Props) => {
   const fullName = `${worker.last_name}, ${worker.first_name}`
 
   return (
-    <tr className={!worker.is_active ? 'worker-row--inactive' : ''}>
+    <tr
+      className={`worker-row${!worker.is_active ? ' worker-row--inactive' : ''}`}
+      onClick={() => onClick(worker)}
+    >
       <td>
         {fullName}
         {worker.is_supervisor && (
