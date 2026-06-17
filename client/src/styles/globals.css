@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Squada+One&family=Stardos+Stencil:wght@400;700&display=swap');
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-canvas);
+}
+
+#root {
+  height: 100%;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
