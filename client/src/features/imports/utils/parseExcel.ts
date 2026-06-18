@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
-import type { RawImportRow, MappedPostRow, ColumnMapping, PostType } from '../../../types/index'
+import type { RawImportRow, MappedPostRow, ColumnMapping } from '../../../types/index'
 import { normalizeTime, splitTimeRange } from './parseTime'
+import { normalizePostType } from './normalizePostType'
 
 export interface ParsedWorkbook {
   sheetNames: string[]
@@ -60,9 +61,9 @@ export function extractPostRows(
         ? rawCount
         : parseInt(String(rawCount ?? '1'), 10)
 
-    // Post type — anything not explicitly "staffing" defaults to security
-    const rawType = String(row[mapping.post_type] ?? '').trim().toLowerCase()
-    const post_type: PostType = rawType === 'staffing' ? 'staffing' : 'security'
+    // Post type — normalize known aliases; unrecognized values default to security
+    const rawType = String(row[mapping.post_type] ?? '').trim()
+    const post_type = normalizePostType(rawType) ?? 'security'
 
     // Notes (optional mapping)
     const rawNotes = mapping.notes ? row[mapping.notes] : null

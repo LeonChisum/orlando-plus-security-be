@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useShow } from '../features/shows/hooks/useShows'
 import FileUploadStep from '../features/imports/components/FileUploadStep'
+import ColumnMappingStep from '../features/imports/components/ColumnMappingStep'
 import type { ParsedWorkbook } from '../features/imports/utils/parseExcel'
+import { detectMapping } from '../features/imports/utils/detectColumnMapping'
+import type { DetectionResult } from '../features/imports/utils/detectColumnMapping'
+import type { ColumnMapping } from '../types/index'
 import Loader from '../components/Loader'
 import styles from './ImportPage.module.css'
 
@@ -57,6 +61,8 @@ const ImportPage = () => {
   const [parsedWorkbook, setParsedWorkbook] = useState<ParsedWorkbook | null>(null)
   const [selectedSheetIndex, setSelectedSheetIndex] = useState(0)
   const [fileName, setFileName] = useState<string | null>(null)
+  const [detection, setDetection] = useState<DetectionResult | null>(null)
+  const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(null)
 
   const showDetailPath = `/shows/${id}`
 
@@ -66,15 +72,54 @@ const ImportPage = () => {
     setParsedWorkbook(wb)
     setFileName(name)
     setSelectedSheetIndex(0)
+    // Reset downstream state when a new file is loaded
+    setDetection(null)
+    setColumnMapping(null)
+  }
+
+  const handleSheetChange = (idx: number) => {
+    setSelectedSheetIndex(idx)
+    // Reset mapping when the sheet changes — columns may differ
+    setDetection(null)
+    setColumnMapping(null)
+  }
+
+  const handleStep1Continue = () => {
+    if (!parsedWorkbook) return
+    const rows = parsedWorkbook.sheets[selectedSheetIndex]
+    const headers = rows.length > 0 ? Object.keys(rows[0]) : []
+    const result = detectMapping(headers)
+    setDetection(result)
+
+    if (result.confidence === 'high') {
+      setColumnMapping(result.mapping as ColumnMapping)
+      setStep(3)
+    } else {
+      setStep(2)
+    }
+  }
+
+  const handleStep2Continue = (mapping: ColumnMapping) => {
+    setColumnMapping(mapping)
+    setStep(3)
   }
 
   const handleBack = () => {
     if (step === 1) {
       navigate(showDetailPath)
+    } else if (step === 2) {
+      setStep(1)
     } else {
-      setStep((s) => (s - 1) as Step)
+      // From step 3, always go to step 2 so mapping can be reviewed/edited
+      setStep(2)
     }
   }
+
+  // Headers for the currently selected sheet (used by ColumnMappingStep)
+  const currentHeaders =
+    parsedWorkbook && parsedWorkbook.sheets[selectedSheetIndex]?.length > 0
+      ? Object.keys(parsedWorkbook.sheets[selectedSheetIndex][0])
+      : []
 
   return (
     <div className={styles.page}>
@@ -105,34 +150,26 @@ const ImportPage = () => {
               selectedSheetIndex={selectedSheetIndex}
               fileName={fileName}
               onParsed={handleParsed}
-              onSheetChange={setSelectedSheetIndex}
+              onSheetChange={handleSheetChange}
               onBack={handleBack}
-              onContinue={() => setStep(2)}
+              onContinue={handleStep1Continue}
             />
           </>
         )}
 
-        {step === 2 && (
+        {step === 2 && detection && (
           <>
             <h2 className={styles.stepHeading}>Step 2 — Map Columns</h2>
-            <div className={styles.placeholder}>
-              <span className={styles.placeholderIcon}>🗂</span>
-              <p className={styles.placeholderTitle}>Column mapping</p>
-              <p className={styles.placeholderSub}>
-                Tell us which Excel columns correspond to post name, date, times, and headcount.
-                <br />
-                Coming in ticket 2.3.
-              </p>
-            </div>
-            <div className={styles.placeholderFooter}>
-              <button className="btn btn--ghost" onClick={handleBack}>
-                ← Back
-              </button>
-            </div>
+            <ColumnMappingStep
+              headers={currentHeaders}
+              detection={detection}
+              onBack={handleBack}
+              onContinue={handleStep2Continue}
+            />
           </>
         )}
 
-        {step === 3 && (
+        {step === 3 && columnMapping && (
           <>
             <h2 className={styles.stepHeading}>Step 3 — Review & Confirm</h2>
             <div className={styles.placeholder}>
@@ -143,10 +180,28 @@ const ImportPage = () => {
                 <br />
                 Coming in ticket 2.5.
               </p>
+              <div className={styles.mappingSummary}>
+                <span className={styles.mappingSummaryLabel}>Active column mapping</span>
+                <dl className={styles.mappingList}>
+                  {(Object.entries(columnMapping) as [string, string][]).map(([field, col]) => (
+                    <div key={field} className={styles.mappingEntry}>
+                      <dt className={styles.mappingField}>{field}</dt>
+                      <dd className={styles.mappingCol}>{col}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             </div>
             <div className={styles.placeholderFooter}>
               <button className="btn btn--ghost" onClick={handleBack}>
                 ← Back
+              </button>
+              <button
+                className="btn btn--ghost"
+                onClick={() => setStep(2)}
+                style={{ marginLeft: 'auto' }}
+              >
+                Edit Column Mapping
               </button>
             </div>
           </>

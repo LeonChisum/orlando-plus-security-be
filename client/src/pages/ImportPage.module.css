@@ -152,7 +152,64 @@
 .placeholderFooter {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
   padding-top: var(--space-4);
   border-top: 1px solid var(--border);
   width: 100%;
+}
+
+/* ── Mapping summary (step 3 placeholder) ── */
+.mappingSummary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  margin-top: var(--space-2);
+}
+
+.mappingSummaryLabel {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mappingList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.mappingEntry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.mappingEntry:last-child {
+  border-bottom: none;
+}
+
+.mappingField {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+}
+
+.mappingCol {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  margin: 0;
 }
