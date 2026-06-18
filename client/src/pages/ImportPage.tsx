@@ -3,18 +3,21 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useShow } from '../features/shows/hooks/useShows'
 import FileUploadStep from '../features/imports/components/FileUploadStep'
 import ColumnMappingStep from '../features/imports/components/ColumnMappingStep'
-import type { ParsedWorkbook } from '../features/imports/utils/parseExcel'
+import HallTagStep from '../features/imports/components/HallTagStep'
+import type { ParsedWorkbook, } from '../features/imports/utils/parseExcel'
+import { extractPostRows } from '../features/imports/utils/parseExcel'
 import { detectMapping } from '../features/imports/utils/detectColumnMapping'
 import type { DetectionResult } from '../features/imports/utils/detectColumnMapping'
-import type { ColumnMapping } from '../types/index'
+import type { ColumnMapping, MappedPostRow, PendingHall } from '../types/index'
 import Loader from '../components/Loader'
 import styles from './ImportPage.module.css'
 
-type Step = 1 | 2 | 3
+type Step = 1 | 2 | 3 | 4
 
 const STEPS: { label: string }[] = [
   { label: 'Upload' },
   { label: 'Map Columns' },
+  { label: 'Tag Halls' },
   { label: 'Review' },
 ]
 
@@ -63,6 +66,8 @@ const ImportPage = () => {
   const [fileName, setFileName] = useState<string | null>(null)
   const [detection, setDetection] = useState<DetectionResult | null>(null)
   const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(null)
+  const [mappedPosts, setMappedPosts] = useState<MappedPostRow[]>([])
+  const [pendingHalls, setPendingHalls] = useState<PendingHall[]>([])
 
   const showDetailPath = `/shows/${id}`
 
@@ -72,27 +77,33 @@ const ImportPage = () => {
     setParsedWorkbook(wb)
     setFileName(name)
     setSelectedSheetIndex(0)
-    // Reset downstream state when a new file is loaded
     setDetection(null)
     setColumnMapping(null)
+    setMappedPosts([])
+    setPendingHalls([])
   }
 
   const handleSheetChange = (idx: number) => {
     setSelectedSheetIndex(idx)
-    // Reset mapping when the sheet changes — columns may differ
     setDetection(null)
     setColumnMapping(null)
+    setMappedPosts([])
+    setPendingHalls([])
   }
 
   const handleStep1Continue = () => {
     if (!parsedWorkbook) return
-    const rows = parsedWorkbook.sheets[selectedSheetIndex]
-    const headers = rows.length > 0 ? Object.keys(rows[0]) : []
+    const rawRows = parsedWorkbook.sheets[selectedSheetIndex]
+    const headers = rawRows.length > 0 ? Object.keys(rawRows[0]) : []
     const result = detectMapping(headers)
     setDetection(result)
 
     if (result.confidence === 'high') {
-      setColumnMapping(result.mapping as ColumnMapping)
+      const mapping = result.mapping as ColumnMapping
+      setColumnMapping(mapping)
+      const posts = extractPostRows(rawRows, mapping)
+      setMappedPosts(posts)
+      setPendingHalls([])
       setStep(3)
     } else {
       setStep(2)
@@ -101,7 +112,18 @@ const ImportPage = () => {
 
   const handleStep2Continue = (mapping: ColumnMapping) => {
     setColumnMapping(mapping)
+    if (!parsedWorkbook) return
+    const rawRows = parsedWorkbook.sheets[selectedSheetIndex]
+    const posts = extractPostRows(rawRows, mapping)
+    setMappedPosts(posts)
+    setPendingHalls([])
     setStep(3)
+  }
+
+  const handleStep3Continue = (posts: MappedPostRow[], halls: PendingHall[]) => {
+    setMappedPosts(posts)
+    setPendingHalls(halls)
+    setStep(4)
   }
 
   const handleBack = () => {
@@ -109,13 +131,15 @@ const ImportPage = () => {
       navigate(showDetailPath)
     } else if (step === 2) {
       setStep(1)
-    } else {
-      // From step 3, always go to step 2 so mapping can be reviewed/edited
+    } else if (step === 3) {
+      // Go back to column mapping so it can be reviewed / adjusted
       setStep(2)
+    } else {
+      setStep(3)
     }
   }
 
-  // Headers for the currently selected sheet (used by ColumnMappingStep)
+  // Headers for the currently selected sheet
   const currentHeaders =
     parsedWorkbook && parsedWorkbook.sheets[selectedSheetIndex]?.length > 0
       ? Object.keys(parsedWorkbook.sheets[selectedSheetIndex][0])
@@ -169,27 +193,35 @@ const ImportPage = () => {
           </>
         )}
 
-        {step === 3 && columnMapping && (
+        {step === 3 && id && (
           <>
-            <h2 className={styles.stepHeading}>Step 3 — Review & Confirm</h2>
+            <h2 className={styles.stepHeading}>Step 3 — Tag Halls</h2>
+            <HallTagStep
+              showId={id}
+              initialPosts={mappedPosts}
+              initialPendingHalls={pendingHalls}
+              onBack={handleBack}
+              onContinue={handleStep3Continue}
+            />
+          </>
+        )}
+
+        {step === 4 && columnMapping && (
+          <>
+            <h2 className={styles.stepHeading}>Step 4 — Review & Confirm</h2>
             <div className={styles.placeholder}>
               <span className={styles.placeholderIcon}>✅</span>
               <p className={styles.placeholderTitle}>Review import</p>
               <p className={styles.placeholderSub}>
-                Validate rows, tag halls, and confirm before writing to the database.
+                Validate rows and confirm before writing to the database.
                 <br />
                 Coming in ticket 2.5.
               </p>
               <div className={styles.mappingSummary}>
-                <span className={styles.mappingSummaryLabel}>Active column mapping</span>
-                <dl className={styles.mappingList}>
-                  {(Object.entries(columnMapping) as [string, string][]).map(([field, col]) => (
-                    <div key={field} className={styles.mappingEntry}>
-                      <dt className={styles.mappingField}>{field}</dt>
-                      <dd className={styles.mappingCol}>{col}</dd>
-                    </div>
-                  ))}
-                </dl>
+                <span className={styles.mappingSummaryLabel}>
+                  {mappedPosts.length} posts · {pendingHalls.length} new{' '}
+                  {pendingHalls.length === 1 ? 'hall' : 'halls'} pending
+                </span>
               </div>
             </div>
             <div className={styles.placeholderFooter}>

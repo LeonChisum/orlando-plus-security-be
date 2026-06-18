@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   BadgeMini — compact credential chip
+   Used in roster rail, drag overlays (dnd-kit), and calendar assignment.
+   Chrome palette so it reads against both light and dark backgrounds.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.mini {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--chrome-bg-2);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: var(--radius);
+  width: 220px;
+  max-width: 100%;
+  cursor: default;
+  user-select: none;
+  transition:
+    box-shadow var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+/* Drag overlay lift */
+.dragging {
+  box-shadow: var(--shadow-gold);
+  transform: scale(1.03);
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dragging { transform: none; }
+}
+
+/* Inactive state */
+.inactive {
+  opacity: 0.55;
+}
+
+/* ── Avatar monogram ── */
+.avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 2px solid rgba(212, 175, 55, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--gold-400);
+  letter-spacing: 0.04em;
+}
+
+/* ── Text content ── */
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--chrome-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Type chip ── */
+.typeChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-head);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.guard {
+  background: rgba(47, 127, 184, 0.2);
+  color: #6bb3e0;
+  border: 1px solid rgba(47, 127, 184, 0.3);
+}
+
+.staffer {
+  background: rgba(46, 158, 91, 0.2);
+  color: #5ec87a;
+  border: 1px solid rgba(46, 158, 91, 0.3);
+}
+
+/* ── Supervisor gold dot ── */
+.supDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  flex-shrink: 0;
+}
+
+/* ── Inactive label ── */
+.inactiveLabel {
+  font-family: var(--font-head);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+}

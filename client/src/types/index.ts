@@ -238,6 +238,12 @@ export interface ColumnMapping {
   notes?: string
 }
 
+export interface PendingHall {
+  tempId: string
+  name: string
+  floor_level: string | null
+}
+
 // ─── Overtime Flags ───────────────────────────────────────────────────────────
 
 export interface OvertimeFlag {
