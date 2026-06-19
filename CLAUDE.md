@@ -665,8 +665,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 2.3 | Column mapping UI | ✅ |
 | 2.4 | Hall tagging step | ✅ |
 | 2.5 | Review + confirm import | ✅ |
-| 2.6 | Error handling + edge cases | ⬜ |
-| 2.7 | Full show detail page (posts by hall) | ⬜ |
+| 2.6 | Error handling + edge cases | ✅ |
+| 2.7 | Full show detail page (posts by hall) | ✅ |
 | 2.8 | Import session recovery (sessionStorage) | ⬜ |
 
 ---
@@ -675,7 +675,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 2.5 — Review & Confirm Import  
-**Next ticket to start:** 2.6 — Error handling + edge cases  
+**Last completed ticket:** 2.7 — Full show detail page (posts by hall)  
+**Next ticket to start:** 2.8 — Import session recovery (sessionStorage)  
 **Blockers / open questions:** None.  
-**Notes:** 2.5 delivers the final wizard step (`ReviewConfirmStep` at `features/imports/components/`). Auto-sequences posts that share the same name + hall + date + time window (e.g. "Post Door A" → "Post Door A 1", "Post Door A 2"). Runs a duplicate check against existing posts on this show via Supabase; supervisor must Skip or Overwrite each conflict before the confirm button enables. Rows with parse errors (from `validationErrors[]`) must be individually skipped. On confirm: pending halls are created first via `commitImport` (`features/imports/utils/commitImport.ts`), tempIds are resolved to real hall IDs, then all posts are batch-inserted in a single call. On post-insert failure the newly created halls are deleted (rollback). `ImportSession` and `CommitResult` types added to `types/index.ts`. `ImportPage` cleaned up — `columnMapping` state removed (no longer needed past step 2).
+**Notes:** 2.6 hardened the import pipeline — `calcDurationHours` utility (with Vitest coverage), zero-duration validation, midnight-spanning support, silent empty-row skipping with count, date normalization to ISO via `parseDate`, headcount 0→1 default with `headcountDefaulted` flag, `ExtractionResult` return type from `extractPostRows`. `ReviewConfirmStep` gained three new info/warn/error banners driven by these flags. 2.7 added `useShowDetail` hook (`features/shows/hooks/useShowDetail.ts`) that fetches show + halls + posts + shift counts via a single Supabase join. `ShowDetailPage` rebuilt: Overview tab shows collapsible hall sections → date groups → post rows (name, type badge, time window, headcount, shift count); Import button becomes "Re-import" with confirm modal when posts exist; "View schedule" button disabled until shifts exist (Phase 3). Hall/post/date styles added to `Show.css`.
