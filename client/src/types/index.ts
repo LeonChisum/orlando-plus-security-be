@@ -223,6 +223,7 @@ export interface MappedPostRow {
   start_time: string
   end_time: string
   headcount_required: number
+  headcountDefaulted?: boolean
   notes: string | null
   hall_id: string | null
   validationErrors: string[]

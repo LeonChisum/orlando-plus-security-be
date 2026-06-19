@@ -45,13 +45,14 @@ interface Props {
   showId: string
   posts: MappedPostRow[]
   pendingHalls: PendingHall[]
+  skippedEmptyCount?: number
   onBack: () => void
   onSuccess: () => void
 }
 
 // ─── ReviewConfirmStep ────────────────────────────────────────────────────────
 
-const ReviewConfirmStep = ({ showId, posts, pendingHalls, onBack, onSuccess }: Props) => {
+const ReviewConfirmStep = ({ showId, posts, pendingHalls, skippedEmptyCount = 0, onBack, onSuccess }: Props) => {
   const [sequencedPosts] = useState<MappedPostRow[]>(() => autoSequencePosts(posts))
   const [skippedRows, setSkippedRows] = useState<Set<number>>(new Set())
   const [overwriteRows, setOverwriteRows] = useState<Set<number>>(new Set())
@@ -136,6 +137,10 @@ const ReviewConfirmStep = ({ showId, posts, pendingHalls, onBack, onSuccess }: P
 
   const securityCount = sequencedPosts.filter((p) => p.post_type === 'security').length
   const staffingCount = sequencedPosts.filter((p) => p.post_type === 'staffing').length
+  const headcountDefaultedRows = useMemo(
+    () => sequencedPosts.filter((p) => p.headcountDefaulted),
+    [sequencedPosts],
+  )
 
   const dateRange = useMemo(() => {
     const dates = sequencedPosts.map((p) => p.date).filter(Boolean).sort()
@@ -237,6 +242,38 @@ const ReviewConfirmStep = ({ showId, posts, pendingHalls, onBack, onSuccess }: P
           </>
         )}
       </div>
+
+      {/* No post rows detected */}
+      {posts.length === 0 && (
+        <div className={styles.errorBanner} role="alert">
+          <strong>No post rows detected.</strong> Check your column mapping — none of the rows
+          produced a recognizable post. Go back and verify that the correct columns are selected.
+        </div>
+      )}
+
+      {/* Skipped empty / non-post rows */}
+      {skippedEmptyCount > 0 && (
+        <div className={styles.warnBanner} role="note">
+          <span>
+            {skippedEmptyCount} row{skippedEmptyCount !== 1 ? 's' : ''} with no post data were
+            skipped (blank rows, section headers, or non-post entries between post groups).
+            {' '}If columns are missing entirely, your file may have merged header cells —
+            SheetJS unmerges them automatically, which can drop column names. Reformat merged
+            header cells in Excel if any mapped columns are incorrect.
+          </span>
+        </div>
+      )}
+
+      {/* Headcount defaulted to 1 */}
+      {headcountDefaultedRows.length > 0 && (
+        <div className={styles.infoBanner} role="note">
+          {headcountDefaultedRows.length === 1
+            ? '1 post had a blank or zero headcount and was defaulted to 1.'
+            : `${headcountDefaultedRows.length} posts had a blank or zero headcount and were defaulted to 1.`}
+          {' '}Review these posts if headcount is important:{' '}
+          {headcountDefaultedRows.map((p) => p.name).join(', ')}.
+        </div>
+      )}
 
       {/* Validation errors panel */}
       {erroredRows.length > 0 && (

@@ -68,6 +68,7 @@ const ImportPage = () => {
   const [detection, setDetection] = useState<DetectionResult | null>(null)
   const [mappedPosts, setMappedPosts] = useState<MappedPostRow[]>([])
   const [pendingHalls, setPendingHalls] = useState<PendingHall[]>([])
+  const [skippedEmptyCount, setSkippedEmptyCount] = useState(0)
 
   const showDetailPath = `/shows/${id}`
 
@@ -98,8 +99,9 @@ const ImportPage = () => {
 
     if (result.confidence === 'high') {
       const mapping = result.mapping as ColumnMapping
-      const posts = extractPostRows(rawRows, mapping)
+      const { posts, skippedEmptyCount: count } = extractPostRows(rawRows, mapping)
       setMappedPosts(posts)
+      setSkippedEmptyCount(count)
       setPendingHalls([])
       setStep(3)
     } else {
@@ -110,8 +112,9 @@ const ImportPage = () => {
   const handleStep2Continue = (mapping: ColumnMapping) => {
     if (!parsedWorkbook) return
     const rawRows = parsedWorkbook.sheets[selectedSheetIndex]
-    const posts = extractPostRows(rawRows, mapping)
+    const { posts, skippedEmptyCount: count } = extractPostRows(rawRows, mapping)
     setMappedPosts(posts)
+    setSkippedEmptyCount(count)
     setPendingHalls([])
     setStep(3)
   }
@@ -209,6 +212,7 @@ const ImportPage = () => {
               showId={id}
               posts={mappedPosts}
               pendingHalls={pendingHalls}
+              skippedEmptyCount={skippedEmptyCount}
               onBack={handleBack}
               onSuccess={() => navigate(showDetailPath)}
             />
