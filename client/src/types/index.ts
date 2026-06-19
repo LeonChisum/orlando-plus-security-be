@@ -244,6 +244,19 @@ export interface PendingHall {
   floor_level: string | null
 }
 
+// ─── Import Session ───────────────────────────────────────────────────────────
+
+export interface ImportSession {
+  showId: string
+  posts: MappedPostRow[]
+  pendingHalls: PendingHall[]
+}
+
+export interface CommitResult {
+  createdPostIds: string[]
+  createdHallIds: string[]
+}
+
 // ─── Overtime Flags ───────────────────────────────────────────────────────────
 
 export interface OvertimeFlag {

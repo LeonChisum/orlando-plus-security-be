@@ -662,9 +662,9 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 |---|---|---|
 | 2.1 | Show setup form + list page | ✅ |
 | 2.2 | File upload + SheetJS parse | ✅ |
-| 2.3 | Column mapping UI | 🔵 Active |
-| 2.4 | Hall tagging step | ⬜ |
-| 2.5 | Review + confirm import | ⬜ |
+| 2.3 | Column mapping UI | ✅ |
+| 2.4 | Hall tagging step | ✅ |
+| 2.5 | Review + confirm import | ✅ |
 | 2.6 | Error handling + edge cases | ⬜ |
 | 2.7 | Full show detail page (posts by hall) | ⬜ |
 | 2.8 | Import session recovery (sessionStorage) | ⬜ |
@@ -675,7 +675,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 2.2 — File upload + SheetJS parse  
-**Next ticket to start:** 2.3 — Column mapping UI  
+**Last completed ticket:** 2.5 — Review & Confirm Import  
+**Next ticket to start:** 2.6 — Error handling + edge cases  
 **Blockers / open questions:** None.  
-**Notes:** 2.2 delivers the import wizard at `/shows/:id/import` (`ImportPage`). Step 1 (`FileUploadStep`) handles drag-and-drop + click-to-browse, 10 MB guard, .xlsx/.xls validation, SheetJS client-side parse via `parseWorkbook`, multi-sheet tab selector, and a 30-row scrollable preview table. "Continue" advances to a stub Step 2 placeholder; "Back" from Step 1 returns to show detail (state preserved on back-navigation). `parseTime.ts` normalizes HHMM / HH:MM / Excel fractions with 5 Vitest tests passing. `parseExcel.ts` exports `parseWorkbook` + `extractPostRows(rows, mapping)` — mapping logic is implemented but 2.3's column mapping UI is needed before it runs. Types `RawImportRow`, `MappedPostRow`, `ColumnMapping` added to `types/index.ts`. "Import buy order" button on ShowDetailPage (header + Overview tab) now navigates to the import route. `splitTimeRange` helper in `parseTime.ts` handles "0600-0000" range strings used by some buy orders.
+**Notes:** 2.5 delivers the final wizard step (`ReviewConfirmStep` at `features/imports/components/`). Auto-sequences posts that share the same name + hall + date + time window (e.g. "Post Door A" → "Post Door A 1", "Post Door A 2"). Runs a duplicate check against existing posts on this show via Supabase; supervisor must Skip or Overwrite each conflict before the confirm button enables. Rows with parse errors (from `validationErrors[]`) must be individually skipped. On confirm: pending halls are created first via `commitImport` (`features/imports/utils/commitImport.ts`), tempIds are resolved to real hall IDs, then all posts are batch-inserted in a single call. On post-insert failure the newly created halls are deleted (rollback). `ImportSession` and `CommitResult` types added to `types/index.ts`. `ImportPage` cleaned up — `columnMapping` state removed (no longer needed past step 2).

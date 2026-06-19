@@ -4,6 +4,7 @@ import { useShow } from '../features/shows/hooks/useShows'
 import FileUploadStep from '../features/imports/components/FileUploadStep'
 import ColumnMappingStep from '../features/imports/components/ColumnMappingStep'
 import HallTagStep from '../features/imports/components/HallTagStep'
+import ReviewConfirmStep from '../features/imports/components/ReviewConfirmStep'
 import type { ParsedWorkbook, } from '../features/imports/utils/parseExcel'
 import { extractPostRows } from '../features/imports/utils/parseExcel'
 import { detectMapping } from '../features/imports/utils/detectColumnMapping'
@@ -65,7 +66,6 @@ const ImportPage = () => {
   const [selectedSheetIndex, setSelectedSheetIndex] = useState(0)
   const [fileName, setFileName] = useState<string | null>(null)
   const [detection, setDetection] = useState<DetectionResult | null>(null)
-  const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(null)
   const [mappedPosts, setMappedPosts] = useState<MappedPostRow[]>([])
   const [pendingHalls, setPendingHalls] = useState<PendingHall[]>([])
 
@@ -78,7 +78,6 @@ const ImportPage = () => {
     setFileName(name)
     setSelectedSheetIndex(0)
     setDetection(null)
-    setColumnMapping(null)
     setMappedPosts([])
     setPendingHalls([])
   }
@@ -86,7 +85,6 @@ const ImportPage = () => {
   const handleSheetChange = (idx: number) => {
     setSelectedSheetIndex(idx)
     setDetection(null)
-    setColumnMapping(null)
     setMappedPosts([])
     setPendingHalls([])
   }
@@ -100,7 +98,6 @@ const ImportPage = () => {
 
     if (result.confidence === 'high') {
       const mapping = result.mapping as ColumnMapping
-      setColumnMapping(mapping)
       const posts = extractPostRows(rawRows, mapping)
       setMappedPosts(posts)
       setPendingHalls([])
@@ -111,7 +108,6 @@ const ImportPage = () => {
   }
 
   const handleStep2Continue = (mapping: ColumnMapping) => {
-    setColumnMapping(mapping)
     if (!parsedWorkbook) return
     const rawRows = parsedWorkbook.sheets[selectedSheetIndex]
     const posts = extractPostRows(rawRows, mapping)
@@ -206,36 +202,16 @@ const ImportPage = () => {
           </>
         )}
 
-        {step === 4 && columnMapping && (
+        {step === 4 && id && (
           <>
             <h2 className={styles.stepHeading}>Step 4 — Review & Confirm</h2>
-            <div className={styles.placeholder}>
-              <span className={styles.placeholderIcon}>✅</span>
-              <p className={styles.placeholderTitle}>Review import</p>
-              <p className={styles.placeholderSub}>
-                Validate rows and confirm before writing to the database.
-                <br />
-                Coming in ticket 2.5.
-              </p>
-              <div className={styles.mappingSummary}>
-                <span className={styles.mappingSummaryLabel}>
-                  {mappedPosts.length} posts · {pendingHalls.length} new{' '}
-                  {pendingHalls.length === 1 ? 'hall' : 'halls'} pending
-                </span>
-              </div>
-            </div>
-            <div className={styles.placeholderFooter}>
-              <button className="btn btn--ghost" onClick={handleBack}>
-                ← Back
-              </button>
-              <button
-                className="btn btn--ghost"
-                onClick={() => setStep(2)}
-                style={{ marginLeft: 'auto' }}
-              >
-                Edit Column Mapping
-              </button>
-            </div>
+            <ReviewConfirmStep
+              showId={id}
+              posts={mappedPosts}
+              pendingHalls={pendingHalls}
+              onBack={handleBack}
+              onSuccess={() => navigate(showDetailPath)}
+            />
           </>
         )}
       </div>
