@@ -209,6 +209,59 @@ export interface Availability {
 export type AvailabilityInsert = Omit<Availability, 'id' | 'created_at' | 'updated_at'>
 export type AvailabilityUpdate = Partial<AvailabilityInsert>
 
+// ─── Imports ──────────────────────────────────────────────────────────────────
+
+export interface RawImportRow {
+  [columnHeader: string]: string | number | null
+}
+
+export interface MappedPostRow {
+  rawIndex: number
+  name: string
+  post_type: PostType
+  date: string
+  start_time: string
+  end_time: string
+  headcount_required: number
+  headcountDefaulted?: boolean
+  notes: string | null
+  hall_id: string | null
+  validationErrors: string[]
+}
+
+export interface ColumnMapping {
+  name: string
+  post_type: string
+  date: string
+  start_time: string
+  end_time: string
+  headcount_required: string
+  notes?: string
+}
+
+export interface PendingHall {
+  tempId: string
+  name: string
+  floor_level: string | null
+}
+
+// ─── Import Session ───────────────────────────────────────────────────────────
+
+export interface ImportSession {
+  showId: string
+  step: 1 | 2 | 3 | 4
+  fileName: string | null
+  fileSize: number | null
+  skippedEmptyCount: number
+  mappedPosts: MappedPostRow[]
+  pendingHalls: PendingHall[]
+}
+
+export interface CommitResult {
+  createdPostIds: string[]
+  createdHallIds: string[]
+}
+
 // ─── Overtime Flags ───────────────────────────────────────────────────────────
 
 export interface OvertimeFlag {

@@ -4,18 +4,19 @@ import { useToggleWorkerActive } from '../hooks/useWorkerMutations'
 import WorkerRow from './WorkerRow'
 import WorkerModal from './WorkerModal'
 import ConfirmModal from './ConfirmModal'
+import GuardBadge from './GuardBadge'
 import Loader from '../../../components/Loader'
 import type { Worker, WorkerType } from '../../../types/index'
 import './Roster.css'
 
 type TypeFilter = WorkerType | 'all'
-type ModalState = { mode: 'add' } | { mode: 'edit'; worker: Worker } | null
 
 const RosterTable = () => {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [includeInactive, setIncludeInactive] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [modal, setModal] = useState<ModalState>(null)
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [badgeWorkerId, setBadgeWorkerId] = useState<string | null>(null)
   const [confirmWorker, setConfirmWorker] = useState<Worker | null>(null)
 
   const toggleActive = useToggleWorkerActive()
@@ -24,6 +25,10 @@ const RosterTable = () => {
     worker_type: typeFilter === 'all' ? undefined : typeFilter,
     include_inactive: includeInactive,
   })
+
+  // Derive from live query data so mutations (supervisor toggle, etc.) are
+  // reflected immediately without stale snapshot props.
+  const badgeWorker = workers?.find((w) => w.id === badgeWorkerId) ?? null
 
   const filteredWorkers = (() => {
     if (!workers || !searchQuery.trim()) return workers
@@ -72,7 +77,7 @@ const RosterTable = () => {
             </label>
             <button
               className="btn btn--primary"
-              onClick={() => setModal({ mode: 'add' })}
+              onClick={() => setAddModalOpen(true)}
             >
               + Add worker
             </button>
@@ -113,7 +118,7 @@ const RosterTable = () => {
                 <WorkerRow
                   key={worker.id}
                   worker={worker}
-                  onClick={(w) => setModal({ mode: 'edit', worker: w })}
+                  onClick={(w) => setBadgeWorkerId(w.id)}
                   onDeactivate={(w) => setConfirmWorker(w)}
                 />
               ))}
@@ -122,12 +127,16 @@ const RosterTable = () => {
         )}
       </div>
 
-      {modal && (
-        <WorkerModal
-          mode={modal.mode}
-          worker={modal.mode === 'edit' ? modal.worker : undefined}
-          onClose={() => setModal(null)}
-        />
+      {addModalOpen && (
+        <WorkerModal mode="add" onClose={() => setAddModalOpen(false)} />
+      )}
+
+      {badgeWorker && (
+        <div className="modal-overlay" onClick={() => setBadgeWorkerId(null)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <GuardBadge worker={badgeWorker} onClose={() => setBadgeWorkerId(null)} />
+          </div>
+        </div>
       )}
 
       {confirmWorker && (

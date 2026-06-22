@@ -1,0 +1,261 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ── Page header ── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.back {
+  align-self: flex-start;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Stepper ── */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.stepItem:last-child {
+  flex: 0;
+}
+
+.stepCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  color: var(--text-faint);
+  background: var(--surface-raised);
+  font-family: var(--font-mono);
+}
+
+.stepCircleActive {
+  border-color: var(--gold-500);
+  background: var(--gold-500);
+  color: var(--text-on-gold);
+}
+
+.stepCircleDone {
+  border-color: var(--ok-500);
+  background: var(--ok-500);
+  color: #fff;
+}
+
+.stepLabel {
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.stepLabelActive {
+  color: var(--text-strong);
+}
+
+.stepConnector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin: 0 var(--space-2);
+}
+
+.stepConnectorDone {
+  background: var(--ok-500);
+}
+
+/* ── Step body ── */
+.body {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.stepHeading {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  margin: 0 0 var(--space-5) 0;
+}
+
+/* ── Placeholder for future steps ── */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+}
+
+.placeholderIcon {
+  font-size: 2.5rem;
+}
+
+.placeholderTitle {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.placeholderSub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.placeholderFooter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+/* ── Session recovery prompt ── */
+.sessionPrompt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-500);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+}
+
+.sessionPromptIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  color: var(--warn-500);
+}
+
+.sessionPromptBody {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sessionPromptTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.sessionPromptMeta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sessionPromptActions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ── Mapping summary (step 3 placeholder) ── */
+.mappingSummary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  margin-top: var(--space-2);
+}
+
+.mappingSummaryLabel {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mappingList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.mappingEntry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.mappingEntry:last-child {
+  border-bottom: none;
+}
+
+.mappingField {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+}
+
+.mappingCol {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  margin: 0;
+}

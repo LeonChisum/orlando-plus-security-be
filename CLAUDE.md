@@ -623,8 +623,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 | Phase | Epic | Status |
 |---|---|---|
-| 1 | Scaffold + Schema + Seed + Roster CRUD | 🔵 Active |
-| 2 | Excel Buy Order Import | ⬜ |
+| 1 | Scaffold + Schema + Seed + Roster CRUD | ✅ |
+| 2 | Excel Buy Order Import | 🔵 Active |
 | 3 | Shift Split Engine | ⬜ |
 | 4 | Assignment Board UI | ⬜ |
 | 5 | Conflict + Overtime Detection | ⬜ |
@@ -656,11 +656,37 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 ---
 
+## Phase 2 Tickets
+
+| # | Ticket | Status |
+|---|---|---|
+| 2.1 | Show setup form + list page | ✅ |
+| 2.2 | File upload + SheetJS parse | ✅ |
+| 2.3 | Column mapping UI | ✅ |
+| 2.4 | Hall tagging step | ✅ |
+| 2.5 | Review + confirm import | ✅ |
+| 2.6 | Error handling + edge cases | ✅ |
+| 2.7 | Full show detail page (posts by hall) | ✅ |
+| 2.8 | Import session recovery (sessionStorage) | ⬜ |
+
+---
+
+## Phase 3 Tickets
+| 3.1 | splitPostIntoShifts() core function | ✅ |
+| 3.2 | Vitest suite — split engine | ✅ |
+| 3.3 | suggestStrategy() | ✅ |
+| 3.4 | Split preview UI (show detail integration) | ⬜ |
+| 3.5 | SplitConfirmModal (per-post) | ⬜ |
+| 3.6 | BulkSplitReviewPanel | ⬜ |
+| 3.7 | commitShifts() + race condition guard | ⬜ |
+| 3.8 | Reset shifts | ⬜ |
+| 3.9 | Show detail shift count + board unlock | ⬜ |
+
 ## Session Handoff
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 1.9 — Deactivate / reactivate (soft delete)  
-**Next ticket to start:** 1.10 — Shell layout + stubbed navigation  
-**Blockers / open questions:** 002_rls.sql is missing GRANT statements for `authenticated` role — fixed in file, but must be applied manually in Supabase Studio SQL editor on local instances (not yet run through CLI). Run the grants block or `supabase db reset` to apply.  
-**Notes:** `useToggleWorkerActive` in `useWorkerMutations.ts` handles deactivate/reactivate as a standalone mutation (separate from the form save). WorkerForm no longer has an `is_active` checkbox — active workers show a "Deactivate" button (danger-ghost) that requires inline confirm; inactive workers show a "Reactivate" button (success) that fires immediately. Both close the modal on success. The save payload preserves `worker.is_active` on edit so form saves don't accidentally flip the status. Seed uses fixed hex UUIDs prefixed by entity type (11.../workers, 22.../shows, 33.../halls, 44.../posts, 55.../shifts).
+**Last completed ticket:** 3.3 — suggestStrategy()  
+**Next ticket to start:** 3.4 — Split preview UI (show detail integration)  
+**Blockers / open questions:** None.  
+**Notes:** `suggestStrategy(post)` added to `splitPostIntoShifts.ts` — reuses `toMinutes` / `getAbsoluteEnd` already in the file; no cross-feature import needed. Returns `equal_thirds` (≥18h), `equal_halves` (8–17h), or `single` (<8h). 4 new Vitest tests cover all three thresholds, boundary values, and midnight-spanning posts — 71 total passing. The split engine now exports: `toMinutes`, `toTimeString`, `splitPostIntoShifts`, `validateSplits`, `suggestStrategy`, and types `ShiftOverride`, `PendingShift`, `SplitValidationError`.
