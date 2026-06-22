@@ -104,7 +104,10 @@ const PostRow = ({ post, onSplitConfirm, onReset }: PostRowProps) => (
     </span>
     <span className="sd-post-meta sd-post-shifts">
       {post.shifts.length > 0
-        ? `${post.shifts.length} ${post.shifts.length === 1 ? 'shift' : 'shifts'}`
+        ? (() => {
+            const assignedCount = post.shifts.reduce((a, s) => a + s.assignments.length, 0)
+            return `${post.shifts.length} ${post.shifts.length === 1 ? 'shift' : 'shifts'} · ${assignedCount} assigned`
+          })()
         : '—'}
     </span>
     <span>
@@ -133,11 +136,18 @@ interface HallGroupProps extends HallPostGroup {
   onReset: (post: PostWithShifts) => void
 }
 
-const HallGroup = ({ hall, posts, onSplitConfirm, onReset }: HallGroupProps) => (
+const HallGroup = ({ hall, posts, onSplitConfirm, onReset }: HallGroupProps) => {
+  const shiftCount = posts.reduce((acc, p) => acc + p.shifts.length, 0)
+  return (
   <div className="sd-hall-group">
     <div className="sd-hall-label">
       <span className="sd-hall-name">{hall.name}</span>
       {hall.floor_level && <span className="sd-hall-floor">{hall.floor_level}</span>}
+      <span className="sd-hall-counts">
+        {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+        {' · '}
+        {shiftCount} {shiftCount === 1 ? 'shift' : 'shifts'}
+      </span>
     </div>
     <div className="sd-post-list">
       {posts.map((post) => (
@@ -145,7 +155,8 @@ const HallGroup = ({ hall, posts, onSplitConfirm, onReset }: HallGroupProps) => 
       ))}
     </div>
   </div>
-)
+  )
+}
 
 // ─── DateSection ──────────────────────────────────────────────────────────────
 
@@ -268,10 +279,10 @@ const ShowDetailPage = () => {
             <button
               className="btn btn--ghost"
               disabled={!totalShifts}
-              title={!totalShifts ? 'Available after shifts are created (Phase 3)' : undefined}
+              title={!totalShifts ? 'Commit shifts before opening the schedule board' : undefined}
               onClick={() => navigate(`/schedule/${id}`)}
             >
-              View schedule
+              Open Schedule Board
             </button>
             <button className="btn btn--ghost" onClick={() => setEditModal(true)}>
               Edit
