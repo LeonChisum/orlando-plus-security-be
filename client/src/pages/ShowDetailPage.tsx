@@ -7,7 +7,9 @@ import ShowCalendarView from '../features/shows/components/ShowCalendarView'
 import SplitPreview from '../features/schedule/components/SplitPreview'
 import SplitConfirmModal from '../features/schedule/components/SplitConfirmModal'
 import BulkSplitReviewPanel from '../features/schedule/components/BulkSplitReviewPanel'
+import ResetShiftsModal from '../features/schedule/components/ResetShiftsModal'
 import { useCommitShifts } from '../features/schedule/hooks/useCommitShifts'
+import { useResetShifts } from '../features/schedule/hooks/useResetShifts'
 import Loader from '../components/Loader'
 import type { Post } from '../types/index'
 import '../features/shows/components/Show.css'
@@ -85,9 +87,10 @@ const ReimportModal = ({ onConfirm, onClose }: { onConfirm: () => void; onClose:
 interface PostRowProps {
   post: PostWithShifts
   onSplitConfirm: (post: Post) => void
+  onReset: (post: PostWithShifts) => void
 }
 
-const PostRow = ({ post, onSplitConfirm }: PostRowProps) => (
+const PostRow = ({ post, onSplitConfirm, onReset }: PostRowProps) => (
   <div className={`sd-post-row${post.shifts.length === 0 ? ' sd-post-row--unsplit' : ''}`}>
     <span className="sd-post-name">{post.name}</span>
     <span className={`sd-type-badge sd-type-badge--${post.post_type}`}>
@@ -104,6 +107,17 @@ const PostRow = ({ post, onSplitConfirm }: PostRowProps) => (
         ? `${post.shifts.length} ${post.shifts.length === 1 ? 'shift' : 'shifts'}`
         : '—'}
     </span>
+    <span>
+      {post.shifts.length > 0 && (
+        <button
+          className="btn btn--ghost sd-post-reset-btn"
+          onClick={(e) => { e.stopPropagation(); onReset(post) }}
+          aria-label={`Reset shifts for ${post.name}`}
+        >
+          Reset splits
+        </button>
+      )}
+    </span>
     {post.shifts.length === 0 && (
       <div className="sd-split-preview-bar">
         <SplitPreview post={post} onConfirm={onSplitConfirm} />
@@ -116,9 +130,10 @@ const PostRow = ({ post, onSplitConfirm }: PostRowProps) => (
 
 interface HallGroupProps extends HallPostGroup {
   onSplitConfirm: (post: Post) => void
+  onReset: (post: PostWithShifts) => void
 }
 
-const HallGroup = ({ hall, posts, onSplitConfirm }: HallGroupProps) => (
+const HallGroup = ({ hall, posts, onSplitConfirm, onReset }: HallGroupProps) => (
   <div className="sd-hall-group">
     <div className="sd-hall-label">
       <span className="sd-hall-name">{hall.name}</span>
@@ -126,7 +141,7 @@ const HallGroup = ({ hall, posts, onSplitConfirm }: HallGroupProps) => (
     </div>
     <div className="sd-post-list">
       {posts.map((post) => (
-        <PostRow key={post.id} post={post} onSplitConfirm={onSplitConfirm} />
+        <PostRow key={post.id} post={post} onSplitConfirm={onSplitConfirm} onReset={onReset} />
       ))}
     </div>
   </div>
@@ -136,9 +151,10 @@ const HallGroup = ({ hall, posts, onSplitConfirm }: HallGroupProps) => (
 
 interface DateSectionProps extends DateGroup {
   onSplitConfirm: (post: Post) => void
+  onReset: (post: PostWithShifts) => void
 }
 
-const DateSection = ({ date, hallGroups, onSplitConfirm }: DateSectionProps) => {
+const DateSection = ({ date, hallGroups, onSplitConfirm, onReset }: DateSectionProps) => {
   const [collapsed, setCollapsed] = useState(false)
   const postCount = hallGroups.reduce((acc, hg) => acc + hg.posts.length, 0)
   const shiftCount = hallGroups.reduce(
@@ -165,7 +181,7 @@ const DateSection = ({ date, hallGroups, onSplitConfirm }: DateSectionProps) => 
       {!collapsed && (
         <div className="sd-date-body">
           {hallGroups.map(({ hall, posts }) => (
-            <HallGroup key={hall.id} hall={hall} posts={posts} onSplitConfirm={onSplitConfirm} />
+            <HallGroup key={hall.id} hall={hall} posts={posts} onSplitConfirm={onSplitConfirm} onReset={onReset} />
           ))}
         </div>
       )}
@@ -182,6 +198,8 @@ const ShowDetailPage = () => {
   const navigate = useNavigate()
   const { data: show, isLoading, isError } = useShowDetail(id ?? '')
   const commitMutation = useCommitShifts(id ?? '')
+  const resetMutation = useResetShifts(id ?? '')
+  const [resetPost, setResetPost] = useState<PostWithShifts | null>(null)
   const [editModal, setEditModal] = useState(false)
   const [reimportModal, setReimportModal] = useState(false)
   const [view, setView] = useState<View>('overview')
@@ -289,6 +307,7 @@ const ShowDetailPage = () => {
           onImport={() => navigate(`/shows/${id}/import`)}
           onSplitConfirm={setSplitPost}
           onBulkOpen={() => setBulkOpen(true)}
+          onReset={setResetPost}
         />
       )}
 
@@ -345,6 +364,19 @@ const ShowDetailPage = () => {
         />
       )}
 
+      {resetPost && (
+        <ResetShiftsModal
+          post={resetPost}
+          isPending={resetMutation.isPending}
+          onClose={() => setResetPost(null)}
+          onReset={() => {
+            resetMutation.mutate(resetPost, {
+              onSuccess: () => setResetPost(null),
+            })
+          }}
+        />
+      )}
+
       {bulkErrors && !bulkOpen && (
         <div className="sd-commit-error" role="alert">
           {Object.values(bulkErrors).length === 1
@@ -365,9 +397,10 @@ interface OverviewPanelProps {
   onImport: () => void
   onSplitConfirm: (post: Post) => void
   onBulkOpen: () => void
+  onReset: (post: PostWithShifts) => void
 }
 
-const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm, onBulkOpen }: OverviewPanelProps) => {
+const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm, onBulkOpen, onReset }: OverviewPanelProps) => {
   const dateGroups = useMemo(
     () => groupByDateThenHall(halls.filter((h) => h.posts.length > 0)),
     [halls],
@@ -408,7 +441,7 @@ const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm, onBulkOpen }
       )}
       <div className="sd-halls">
         {dateGroups.map(({ date, hallGroups }) => (
-          <DateSection key={date} date={date} hallGroups={hallGroups} onSplitConfirm={onSplitConfirm} />
+          <DateSection key={date} date={date} hallGroups={hallGroups} onSplitConfirm={onSplitConfirm} onReset={onReset} />
         ))}
       </div>
     </div>

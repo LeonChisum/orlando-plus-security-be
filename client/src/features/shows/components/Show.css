@@ -370,7 +370,7 @@
 
 .sd-post-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto;
+  grid-template-columns: 1fr auto auto auto auto auto;
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
@@ -435,6 +435,12 @@
 .sd-post-shifts {
   min-width: 52px;
   text-align: right;
+}
+
+.sd-post-reset-btn {
+  height: 28px;
+  padding: 0 var(--space-3);
+  font-size: 0.78rem;
 }
 
 /* ── Unsplit-posts banner ───────────────────────────────────────── */
@@ -562,6 +568,23 @@
 .btn--ghost:hover:not(:disabled) {
   background: var(--surface-hover);
   color: var(--text);
+}
+
+.btn--danger {
+  background: var(--danger-500);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.btn--danger:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn--danger:active:not(:disabled) {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 /* ── Shared: Modal ──────────────────────────────────────────────── */
