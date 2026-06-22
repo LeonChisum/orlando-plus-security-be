@@ -624,9 +624,9 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | Phase | Epic | Status |
 |---|---|---|
 | 1 | Scaffold + Schema + Seed + Roster CRUD | ✅ |
-| 2 | Excel Buy Order Import | 🔵 Active |
-| 3 | Shift Split Engine | ⬜ |
-| 4 | Assignment Board UI | ⬜ |
+| 2 | Excel Buy Order Import | ✅ |
+| 3 | Shift Split Engine | ✅ |
+| 4 | Assignment Board UI | 🔵 Active |
 | 5 | Conflict + Overtime Detection | ⬜ |
 | 6 | PDF Generation + Email Ack | ⬜ |
 | 7 | Guard Availability Webform | ⬜ |
@@ -672,6 +672,9 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 ---
 
 ## Phase 3 Tickets
+
+| # | Ticket | Status |
+|---|---|---|
 | 3.1 | splitPostIntoShifts() core function | ✅ |
 | 3.2 | Vitest suite — split engine | ✅ |
 | 3.3 | suggestStrategy() | ✅ |
@@ -679,14 +682,35 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 3.5 | SplitConfirmModal (per-post) | ✅ |
 | 3.6 | BulkSplitReviewPanel | ✅ |
 | 3.7 | commitShifts() + race condition guard | ✅ |
-| 3.8 | Reset shifts | ⬜ |
-| 3.9 | Show detail shift count + board unlock | ⬜ |
+| 3.8 | Reset shifts (ResetShiftsModal + useResetShifts + resetShifts util) | ✅ |
+| 3.9 | Show detail shift count + board unlock | ✅ |
+
+---
+
+## Phase 4 Tickets
+
+| # | Ticket | Status |
+|---|---|---|
+| 4.1 | Board layout + routing + useBoardData hook | ✅ |
+| 4.2 | Date navigation + day filter | ⬜ |
+| 4.3 | ShiftCard component | ⬜ |
+| 4.4 | Worker panel + useWorkerPanel | ⬜ |
+| 4.5 | dnd-kit setup + BoardDndProvider | ⬜ |
+| 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
+| 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
+| 4.8 | Conflict + OT override modal | ⬜ |
+| 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ⬜ |
+| 4.10 | Shift detail drawer | ⬜ |
+| 4.11 | Board filters + status bar | ⬜ |
+| 4.12 | Unassign + remove assignment | ⬜ |
+
+---
 
 ## Session Handoff
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 3.7 — commitShifts() + race condition guard  
-**Next ticket to start:** 3.8 — Reset shifts  
-**Blockers / open questions:** None.  
-**Notes:** Three files. `client/src/features/schedule/utils/commitShifts.ts` — pure async utility; groups `PendingShift[]` by `post_id`, per-post SELECT check (race guard), INSERT, DELETE cleanup on partial failure; returns `CommitShiftsResult { committed, failed, errors }`. `client/src/features/schedule/hooks/useCommitShifts.ts` — `useMutation` wrapping `commitShifts`; takes `CommitEntry[]` (`{ post, strategy }`), calls `splitPostIntoShifts` internally, invalidates `['show-detail', showId]` in `onSettled`. `ShowDetailPage` wired: both `SplitConfirmModal` (single post) and `BulkSplitReviewPanel` (bulk) now call `commitMutation.mutate(...)` with `onSuccess` handlers; `isPending` threaded to both; single-post errors surface inside `SplitConfirmModal` via new `error` prop; bulk partial-failure errors render as `sd-commit-error` banner below the panel after close. `SplitConfirmModal` gained `error?: string | null` prop rendered above the action buttons.
+**Last completed ticket:** 4.1 — Board layout + routing + useBoardData hook  
+**Next ticket to start:** 4.2 — Date navigation + day filter  
+**Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) not yet installed — needed for 4.5.  
+**Notes:** Phase 3 was fully complete (3.8 + 3.9 had been built but CLAUDE.md not updated). Phase 4 kicked off with 4.1: `client/src/features/schedule/hooks/useBoardData.ts` — full join query (shows → halls → posts → shifts → assignments → workers), exports `BoardData`, `BoardHall`, `BoardPost`, `BoardShift`, `BoardAssignment` types. `client/src/pages/ScheduleBoardPage.tsx` — full-height flex layout (header + canvas + 280px worker panel sidebar); `BoardCanvas` filters posts by selected date and renders hall groups → post rows → inline shift chips (placeholder for 4.3 ShiftCard); loading, error, and zero-shifts empty states all handled. `client/src/router.tsx` — `/schedule/:id` route added under `RequireAuth`/`Layout`, linked from the existing "Open Schedule Board" button on ShowDetailPage.

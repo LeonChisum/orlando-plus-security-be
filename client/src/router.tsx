@@ -6,6 +6,7 @@ import ShowsPage from './pages/ShowsPage'
 import ShowDetailPage from './pages/ShowDetailPage'
 import ImportPage from './pages/ImportPage'
 import RosterPage from './pages/RosterPage'
+import ScheduleBoardPage from './pages/ScheduleBoardPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
           { path: '/shows/:id', element: <ShowDetailPage /> },
           { path: '/shows/:id/import', element: <ImportPage /> },
           { path: '/roster', element: <RosterPage /> },
+          { path: '/schedule/:id', element: <ScheduleBoardPage /> },
         ],
       },
     ],
