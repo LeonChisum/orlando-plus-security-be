@@ -678,7 +678,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 3.4 | Split preview UI (show detail integration) | ✅ |
 | 3.5 | SplitConfirmModal (per-post) | ✅ |
 | 3.6 | BulkSplitReviewPanel | ✅ |
-| 3.7 | commitShifts() + race condition guard | ⬜ |
+| 3.7 | commitShifts() + race condition guard | ✅ |
 | 3.8 | Reset shifts | ⬜ |
 | 3.9 | Show detail shift count + board unlock | ⬜ |
 
@@ -686,7 +686,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 3.6 — BulkSplitReviewPanel  
-**Next ticket to start:** 3.7 — commitShifts() + race condition guard  
+**Last completed ticket:** 3.7 — commitShifts() + race condition guard  
+**Next ticket to start:** 3.8 — Reset shifts  
 **Blockers / open questions:** None.  
-**Notes:** `BulkSplitReviewPanel` at `client/src/features/schedule/components/BulkSplitReviewPanel.tsx`. Slide-over drawer (520px, fixed right, scrim at z-drawer-1, panel at z-drawer) with full AC coverage: per-row strategy badge + compact times (`06:00–12:00 · 12:00–18:00`) + Edit button; Edit opens `SplitConfirmModal` overlaid on the drawer (modal z-index 500 > drawer 300, visually correct); Modified badge on edited rows; validation via `validateSplits` highlights error rows in red with left border; "Confirm all" disabled when `anyErrors`; count summary in header ("N ready · M need review"). `strategies: Map<string,SplitStrategy>` and `modified: Set<string>` track per-post overrides. Esc closes drawer (unless modal is open). Triggered by "Split all posts" banner in `OverviewPanel` → `bulkOpen` state in `ShowDetailPage`; `BulkSplitReviewPanel` rendered at page level with `unsplitEntries` memo. `onCommit` stub closes the panel — real batch write wired in 3.7.
+**Notes:** Three files. `client/src/features/schedule/utils/commitShifts.ts` — pure async utility; groups `PendingShift[]` by `post_id`, per-post SELECT check (race guard), INSERT, DELETE cleanup on partial failure; returns `CommitShiftsResult { committed, failed, errors }`. `client/src/features/schedule/hooks/useCommitShifts.ts` — `useMutation` wrapping `commitShifts`; takes `CommitEntry[]` (`{ post, strategy }`), calls `splitPostIntoShifts` internally, invalidates `['show-detail', showId]` in `onSettled`. `ShowDetailPage` wired: both `SplitConfirmModal` (single post) and `BulkSplitReviewPanel` (bulk) now call `commitMutation.mutate(...)` with `onSuccess` handlers; `isPending` threaded to both; single-post errors surface inside `SplitConfirmModal` via new `error` prop; bulk partial-failure errors render as `sd-commit-error` banner below the panel after close. `SplitConfirmModal` gained `error?: string | null` prop rendered above the action buttons.

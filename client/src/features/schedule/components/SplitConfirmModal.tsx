@@ -16,6 +16,7 @@ interface SplitConfirmModalProps {
   onCommit: (post: Post, strategy: SplitStrategy) => void
   onClose: () => void
   isPending?: boolean
+  error?: string | null
 }
 
 export default function SplitConfirmModal({
@@ -23,6 +24,7 @@ export default function SplitConfirmModal({
   onCommit,
   onClose,
   isPending = false,
+  error = null,
 }: SplitConfirmModalProps) {
   const suggested = suggestStrategy(post) as AutoStrategy
   const [strategy, setStrategy] = useState<AutoStrategy>(suggested)
@@ -103,6 +105,20 @@ export default function SplitConfirmModal({
             </div>
           </div>
         </div>
+
+        {error && (
+          <p role="alert" style={{
+            margin: '0 var(--space-5)',
+            padding: 'var(--space-2) var(--space-3)',
+            background: 'var(--danger-bg)',
+            border: '1px solid rgba(210,59,78,.35)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '0.8125rem',
+            color: 'var(--danger-500)',
+          }}>
+            {error}
+          </p>
+        )}
 
         <div className="wf-actions" style={{ padding: 'var(--space-4) var(--space-5)' }}>
           <button className="btn btn--ghost" onClick={onClose} disabled={isPending}>

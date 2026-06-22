@@ -7,6 +7,7 @@ import ShowCalendarView from '../features/shows/components/ShowCalendarView'
 import SplitPreview from '../features/schedule/components/SplitPreview'
 import SplitConfirmModal from '../features/schedule/components/SplitConfirmModal'
 import BulkSplitReviewPanel from '../features/schedule/components/BulkSplitReviewPanel'
+import { useCommitShifts } from '../features/schedule/hooks/useCommitShifts'
 import Loader from '../components/Loader'
 import type { Post } from '../types/index'
 import '../features/shows/components/Show.css'
@@ -180,11 +181,14 @@ const ShowDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: show, isLoading, isError } = useShowDetail(id ?? '')
+  const commitMutation = useCommitShifts(id ?? '')
   const [editModal, setEditModal] = useState(false)
   const [reimportModal, setReimportModal] = useState(false)
   const [view, setView] = useState<View>('overview')
   const [splitPost, setSplitPost] = useState<Post | null>(null)
+  const [splitError, setSplitError] = useState<string | null>(null)
   const [bulkOpen, setBulkOpen] = useState(false)
+  const [bulkErrors, setBulkErrors] = useState<Record<string, string> | null>(null)
   const unsplitEntries = useMemo(
     () =>
       (show?.halls ?? []).flatMap((h) =>
@@ -303,22 +307,51 @@ const ShowDetailPage = () => {
         />
       )}
 
-      {/* SplitConfirmModal (per-post from overview) — commitShifts wired in 3.7 */}
       {splitPost && (
         <SplitConfirmModal
           post={splitPost}
-          onCommit={(_post, _strategy) => setSplitPost(null)}
-          onClose={() => setSplitPost(null)}
+          isPending={commitMutation.isPending}
+          error={splitError}
+          onClose={() => { setSplitPost(null); setSplitError(null) }}
+          onCommit={(post, strategy) => {
+            setSplitError(null)
+            commitMutation.mutate([{ post, strategy }], {
+              onSuccess: (result) => {
+                if (result.committed.includes(post.id)) {
+                  setSplitPost(null)
+                } else {
+                  setSplitError(result.errors[post.id] ?? 'Failed to save shifts')
+                }
+              },
+            })
+          }}
         />
       )}
 
-      {/* BulkSplitReviewPanel — slide-over drawer — commitShifts wired in 3.7 */}
       {bulkOpen && (
         <BulkSplitReviewPanel
           entries={unsplitEntries}
-          onCommit={(_commits) => setBulkOpen(false)}
-          onClose={() => setBulkOpen(false)}
+          isPending={commitMutation.isPending}
+          onClose={() => { setBulkOpen(false); setBulkErrors(null) }}
+          onCommit={(commits) => {
+            setBulkErrors(null)
+            commitMutation.mutate(commits, {
+              onSuccess: (result) => {
+                if (result.failed.length > 0) setBulkErrors(result.errors)
+                setBulkOpen(false)
+              },
+            })
+          }}
         />
+      )}
+
+      {bulkErrors && !bulkOpen && (
+        <div className="sd-commit-error" role="alert">
+          {Object.values(bulkErrors).length === 1
+            ? Object.values(bulkErrors)[0]
+            : `${Object.keys(bulkErrors).length} posts failed to save — see unsplit posts above`}
+          <button onClick={() => setBulkErrors(null)} aria-label="Dismiss">✕</button>
+        </div>
       )}
     </div>
   )
