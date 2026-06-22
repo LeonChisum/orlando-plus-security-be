@@ -57,11 +57,17 @@
   box-shadow: var(--shadow-1);
 }
 
-/* ── Drag-over highlight (wired in 4.5) ─────────────────────────── */
+/* ── Drag-over states ────────────────────────────────────────────── */
 
 .card--dragOver {
   box-shadow: 0 0 0 2px var(--gold-500) !important;
   background: var(--gold-dim) !important;
+}
+
+.card--dragInvalid {
+  box-shadow: 0 0 0 2px var(--danger-500) !important;
+  background: var(--danger-bg) !important;
+  cursor: not-allowed;
 }
 
 /* ── Time row ────────────────────────────────────────────────────── */

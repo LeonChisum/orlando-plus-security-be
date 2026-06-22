@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
+import BoardDndProvider from '../features/schedule/components/BoardDndProvider'
 import ShiftCard from '../features/schedule/components/ShiftCard'
 import WorkerPanel from '../features/schedule/components/WorkerPanel'
 import styles from './ScheduleBoardPage.module.css'
@@ -71,7 +72,6 @@ function PostRow({ post }: { post: BoardPost }) {
             key={shift.id}
             shift={shift}
             post={post}
-            isOver={false}
             onCardClick={() => {}}
           />
         ))}
@@ -268,16 +268,16 @@ export default function ScheduleBoardPage() {
       />
 
       {/* ── Body ── */}
-      <div className={styles.body}>
-        <BoardCanvas halls={boardData.halls} selectedDate={selectedDate} />
-
-        {/* ── Worker panel (4.4) ── */}
-        <WorkerPanel
-          showId={showId ?? ''}
-          date={selectedDate}
-          halls={boardData.halls}
-        />
-      </div>
+      <BoardDndProvider onAssign={() => {}}>
+        <div className={styles.body}>
+          <BoardCanvas halls={boardData.halls} selectedDate={selectedDate} />
+          <WorkerPanel
+            showId={showId ?? ''}
+            date={selectedDate}
+            halls={boardData.halls}
+          />
+        </div>
+      </BoardDndProvider>
     </div>
   )
 }

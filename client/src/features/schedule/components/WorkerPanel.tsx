@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useDraggable } from '@dnd-kit/core'
 import { useWorkerPanel } from '../hooks/useWorkerPanel'
 import type { PanelWorker, AvailStatus } from '../hooks/useWorkerPanel'
 import type { BoardHall } from '../hooks/useBoardData'
@@ -48,8 +49,28 @@ function AvailBadge({ status, window: window_ }: { status: AvailStatus; window: 
 function WorkerCard({ worker }: { worker: PanelWorker }) {
   const license = getLicenseNum(worker)
 
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `worker::${worker.id}`,
+    data: {
+      type: 'worker',
+      workerId: worker.id,
+      workerType: worker.worker_type,
+      workerName: `${worker.first_name} ${worker.last_name}`,
+    },
+  })
+
   return (
-    <div className={styles.workerCard} title={`${worker.first_name} ${worker.last_name}`}>
+    <div
+      ref={setNodeRef}
+      className={[
+        styles.workerCard,
+        isDragging ? styles['workerCard--dragging'] : '',
+      ].filter(Boolean).join(' ')}
+      title={`${worker.first_name} ${worker.last_name}`}
+      style={isDragging ? { opacity: 0.4 } : undefined}
+      {...attributes}
+      {...listeners}
+    >
       <span
         className={`${styles.typeBadge} ${styles[`typeBadge--${worker.worker_type}`]}`}
         aria-label={worker.worker_type}

@@ -187,6 +187,10 @@
   cursor: grabbing;
 }
 
+.workerCard--dragging {
+  opacity: 0.4;
+}
+
 /* type badge (G / S) */
 .typeBadge {
   font-size: 0.6rem;

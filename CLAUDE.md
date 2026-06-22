@@ -695,7 +695,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.2 | Date navigation + day filter | ✅ |
 | 4.3 | ShiftCard component | ✅ |
 | 4.4 | Worker panel + useWorkerPanel | ✅ |
-| 4.5 | dnd-kit setup + BoardDndProvider | ⬜ |
+| 4.5 | dnd-kit setup + BoardDndProvider | ✅ |
 | 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
 | 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
 | 4.8 | Conflict + OT override modal | ⬜ |
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.4 — Worker panel + useWorkerPanel  
-**Next ticket to start:** 4.5 — dnd-kit setup + BoardDndProvider  
-**Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) must be installed before 4.5 begins — `npm install @dnd-kit/core @dnd-kit/utilities` from `/client`.  
-**Notes:** 4.3 created `ShiftCard.tsx` + `ShiftCard.module.css`. 4.4 created `useWorkerPanel.ts` — 3 parallel queries (workers, per_show availability, standing availability); `assignmentsByWorker` derived from `halls` prop via `useMemo` (no extra query). Per_show availability overrides standing when both exist for a worker. `WorkerPanel.tsx` + `WorkerPanel.module.css` — search input, 4 filter tabs (All/Available/Guards/Staffers), collapsible groups (Supervisors → Guards → Staffers), worker cards with G/S type badge, license # for guards, availability badge (✓ or ⚠), and assignment pills ("HHMM–HHMM" format). `ScheduleBoardPage.tsx` — placeholder `<aside>` replaced with `<WorkerPanel showId date halls />`; orphaned panel CSS removed from page module.
+**Last completed ticket:** 4.5 — dnd-kit setup + BoardDndProvider  
+**Next ticket to start:** 4.6 — Conflict detection (detectOverlap + useConflictCheck)  
+**Blockers / open questions:** None.  
+**Notes:** 4.5 created `BoardDndProvider.tsx` + `BoardDndProvider.module.css` — `DndContext` with `PointerSensor` (8px activation distance) + `KeyboardSensor`; `closestCenter` collision detection; `onDragEnd` performs role-check (staffer → security = no-op) and already-assigned guard (no-op) before calling `onAssign`; `DragOverlay` renders `WorkerMiniCard` (G/S badge + name, gold shadow); `aria-live="assertive"` region announces pick-up, target, result, and cancel for screen readers. `ShiftCard.tsx` — removed `isOver` prop; now uses `useDroppable` internally with `id="shift::{shiftId}"`, data `{ postType, assignedWorkerIds }`; reads `active.data.current` to compute `isValidOver` (gold ring) vs `isInvalidOver` (red tint) while hovering. `WorkerPanel.tsx` — `WorkerCard` uses `useDraggable` with `id="worker::{workerId}"`, data `{ type, workerId, workerType, workerName }`; original card fades to opacity 0.4 while dragging (overlay handles the visual movement). `ScheduleBoardPage.tsx` — body wrapped in `<BoardDndProvider onAssign={() => {}}>` (stub, wired for real in 4.9). `@dnd-kit/core` + `@dnd-kit/utilities` installed in `/client`.

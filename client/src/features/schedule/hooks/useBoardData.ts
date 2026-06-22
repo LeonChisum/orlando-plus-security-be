@@ -41,7 +41,7 @@ export function useBoardData(showId: string) {
                 *,
                 assignments (
                   *,
-                  worker:workers (*)
+                  worker:workers!worker_id (*)
                 )
               )
             )

@@ -1,4 +1,6 @@
+import { useDroppable } from '@dnd-kit/core'
 import { calcDurationHours } from '../../imports/utils/calcDuration'
+import { isWorkerEligible } from './BoardDndProvider'
 import type { BoardShift, BoardPost } from '../hooks/useBoardData'
 import styles from './ShiftCard.module.css'
 
@@ -40,18 +42,33 @@ function getVariant(shift: BoardShift, post: BoardPost): CardVariant {
 export interface ShiftCardProps {
   shift: BoardShift
   post: BoardPost
-  isOver: boolean
   onCardClick: () => void
 }
 
 const MAX_VISIBLE = 3
 
-export default function ShiftCard({ shift, post, isOver, onCardClick }: ShiftCardProps) {
+export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) {
   const variant = getVariant(shift, post)
 
   const activeCount = shift.assignments.filter(
     (a) => a.status === 'pending' || a.status === 'confirmed'
   ).length
+
+  const assignedWorkerIds = shift.assignments
+    .filter((a) => a.status === 'pending' || a.status === 'confirmed')
+    .map((a) => a.worker_id)
+
+  const { isOver, setNodeRef, active } = useDroppable({
+    id: `shift::${shift.id}`,
+    data: { postType: post.post_type, assignedWorkerIds },
+  })
+
+  const dragWorkerType = active?.data.current?.workerType as 'guard' | 'staffer' | undefined
+  const dragWorkerId = active?.data.current?.workerId as string | undefined
+  const alreadyAssigned = !!dragWorkerId && assignedWorkerIds.includes(dragWorkerId)
+  const eligible = !!dragWorkerType && isWorkerEligible(dragWorkerType, post.post_type)
+  const isValidOver = isOver && eligible && !alreadyAssigned
+  const isInvalidOver = isOver && (!eligible || alreadyAssigned)
 
   const hours = calcDurationHours(stripSeconds(shift.start_time), stripSeconds(shift.end_time))
   const visibleAssignments = shift.assignments.slice(0, MAX_VISIBLE)
@@ -59,10 +76,12 @@ export default function ShiftCard({ shift, post, isOver, onCardClick }: ShiftCar
 
   return (
     <div
+      ref={setNodeRef}
       className={[
         styles.card,
         styles[`card--${variant}`],
-        isOver ? styles['card--dragOver'] : '',
+        isValidOver ? styles['card--dragOver'] : '',
+        isInvalidOver ? styles['card--dragInvalid'] : '',
       ].filter(Boolean).join(' ')}
       role="button"
       tabIndex={0}
