@@ -677,7 +677,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 3.3 | suggestStrategy() | ✅ |
 | 3.4 | Split preview UI (show detail integration) | ✅ |
 | 3.5 | SplitConfirmModal (per-post) | ✅ |
-| 3.6 | BulkSplitReviewPanel | ⬜ |
+| 3.6 | BulkSplitReviewPanel | ✅ |
 | 3.7 | commitShifts() + race condition guard | ⬜ |
 | 3.8 | Reset shifts | ⬜ |
 | 3.9 | Show detail shift count + board unlock | ⬜ |
@@ -686,7 +686,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 3.5 — SplitConfirmModal (per-post)  
-**Next ticket to start:** 3.6 — BulkSplitReviewPanel  
+**Last completed ticket:** 3.6 — BulkSplitReviewPanel  
+**Next ticket to start:** 3.7 — commitShifts() + race condition guard  
 **Blockers / open questions:** None.  
-**Notes:** `SplitConfirmModal` at `client/src/features/schedule/components/SplitConfirmModal.tsx`. Shows post info (type badge, time, headcount), radio-button strategy picker (single / equal_halves / equal_thirds) pre-selected to `suggestStrategy` result with live-updating shift preview as strategy changes, and Confirm/Cancel actions. `onCommit(post, strategy)` currently just closes the modal — will be wired to `commitShifts()` in ticket 3.7. Mounted from `ShowDetailPage` on `splitPost` state; Esc + backdrop both close. `SplitPreview` (3.4) inline preview uses the same strategy logic for the pre-confirm view. Global `Show.css` modal classes used for overlay/panel shell; modal-specific styles in `SplitConfirmModal.module.css`.
+**Notes:** `BulkSplitReviewPanel` at `client/src/features/schedule/components/BulkSplitReviewPanel.tsx`. Slide-over drawer (520px, fixed right, scrim at z-drawer-1, panel at z-drawer) with full AC coverage: per-row strategy badge + compact times (`06:00–12:00 · 12:00–18:00`) + Edit button; Edit opens `SplitConfirmModal` overlaid on the drawer (modal z-index 500 > drawer 300, visually correct); Modified badge on edited rows; validation via `validateSplits` highlights error rows in red with left border; "Confirm all" disabled when `anyErrors`; count summary in header ("N ready · M need review"). `strategies: Map<string,SplitStrategy>` and `modified: Set<string>` track per-post overrides. Esc closes drawer (unless modal is open). Triggered by "Split all posts" banner in `OverviewPanel` → `bulkOpen` state in `ShowDetailPage`; `BulkSplitReviewPanel` rendered at page level with `unsplitEntries` memo. `onCommit` stub closes the panel — real batch write wired in 3.7.

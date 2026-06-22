@@ -6,6 +6,7 @@ import ShowModal from '../features/shows/components/ShowModal'
 import ShowCalendarView from '../features/shows/components/ShowCalendarView'
 import SplitPreview from '../features/schedule/components/SplitPreview'
 import SplitConfirmModal from '../features/schedule/components/SplitConfirmModal'
+import BulkSplitReviewPanel from '../features/schedule/components/BulkSplitReviewPanel'
 import Loader from '../components/Loader'
 import type { Post } from '../types/index'
 import '../features/shows/components/Show.css'
@@ -183,6 +184,14 @@ const ShowDetailPage = () => {
   const [reimportModal, setReimportModal] = useState(false)
   const [view, setView] = useState<View>('overview')
   const [splitPost, setSplitPost] = useState<Post | null>(null)
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const unsplitEntries = useMemo(
+    () =>
+      (show?.halls ?? []).flatMap((h) =>
+        h.posts.filter((p) => p.shifts.length === 0).map((p) => ({ post: p, hallName: h.name })),
+      ),
+    [show],
+  )
 
   if (isLoading) return <Loader />
 
@@ -275,6 +284,7 @@ const ShowDetailPage = () => {
           halls={show.halls}
           onImport={() => navigate(`/shows/${id}/import`)}
           onSplitConfirm={setSplitPost}
+          onBulkOpen={() => setBulkOpen(true)}
         />
       )}
 
@@ -293,12 +303,21 @@ const ShowDetailPage = () => {
         />
       )}
 
-      {/* SplitConfirmModal — commitShifts wired in ticket 3.7 */}
+      {/* SplitConfirmModal (per-post from overview) — commitShifts wired in 3.7 */}
       {splitPost && (
         <SplitConfirmModal
           post={splitPost}
           onCommit={(_post, _strategy) => setSplitPost(null)}
           onClose={() => setSplitPost(null)}
+        />
+      )}
+
+      {/* BulkSplitReviewPanel — slide-over drawer — commitShifts wired in 3.7 */}
+      {bulkOpen && (
+        <BulkSplitReviewPanel
+          entries={unsplitEntries}
+          onCommit={(_commits) => setBulkOpen(false)}
+          onClose={() => setBulkOpen(false)}
         />
       )}
     </div>
@@ -312,11 +331,17 @@ interface OverviewPanelProps {
   halls: HallWithPosts[]
   onImport: () => void
   onSplitConfirm: (post: Post) => void
+  onBulkOpen: () => void
 }
 
-const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm }: OverviewPanelProps) => {
+const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm, onBulkOpen }: OverviewPanelProps) => {
   const dateGroups = useMemo(
     () => groupByDateThenHall(halls.filter((h) => h.posts.length > 0)),
+    [halls],
+  )
+
+  const unsplitCount = useMemo(
+    () => halls.reduce((acc, h) => acc + h.posts.filter((p) => p.shifts.length === 0).length, 0),
     [halls],
   )
 
@@ -338,6 +363,16 @@ const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm }: OverviewPa
 
   return (
     <div className="sd-overview">
+      {unsplitCount > 0 && (
+        <div className="sd-split-banner">
+          <span className="sd-split-banner-text">
+            {unsplitCount} {unsplitCount === 1 ? 'post needs' : 'posts need'} shifts
+          </span>
+          <button className="btn btn--primary" onClick={onBulkOpen}>
+            Split all posts
+          </button>
+        </div>
+      )}
       <div className="sd-halls">
         {dateGroups.map(({ date, hallGroups }) => (
           <DateSection key={date} date={date} hallGroups={hallGroups} onSplitConfirm={onSplitConfirm} />

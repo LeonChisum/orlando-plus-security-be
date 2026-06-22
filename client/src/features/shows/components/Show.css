@@ -437,6 +437,28 @@
   text-align: right;
 }
 
+/* ── Unsplit-posts banner ───────────────────────────────────────── */
+
+.sd-split-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--warn-bg);
+  border: 1px solid rgba(224, 138, 0, 0.35);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-4);
+}
+
+.sd-split-banner-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--warn-500);
+}
+
+/* ── Split preview bar (inline in PostRow) ──────────────────────── */
+
 .sd-post-row--unsplit {
   grid-template-rows: auto auto;
 }
