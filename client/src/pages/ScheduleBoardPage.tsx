@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
-import type { BoardHall, BoardPost, BoardShift } from '../features/schedule/hooks/useBoardData'
+import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
+import ShiftCard from '../features/schedule/components/ShiftCard'
 import styles from './ScheduleBoardPage.module.css'
 import '../features/shows/components/Show.css'
 
@@ -19,13 +20,6 @@ function formatDateTab(isoDate: string): { weekday: string; short: string } {
     weekday: d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
     short: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
   }
-}
-
-function shiftFillStatus(shift: BoardShift, post: BoardPost): 'open' | 'partial' | 'filled' {
-  const n = shift.assignments.length
-  if (n === 0) return 'open'
-  if (n >= post.headcount_required) return 'filled'
-  return 'partial'
 }
 
 // ─── DateTabBar ───────────────────────────────────────────────────────────────
@@ -58,31 +52,6 @@ function DateTabBar({ dates, selectedDate, onSelect }: DateTabBarProps) {
   )
 }
 
-// ─── ShiftChip (placeholder for 4.3 ShiftCard) ───────────────────────────────
-
-interface ShiftChipProps {
-  shift: BoardShift
-  post: BoardPost
-}
-
-function ShiftChip({ shift, post }: ShiftChipProps) {
-  const fill = shiftFillStatus(shift, post)
-  const chipClass = [
-    styles.shiftChip,
-    fill === 'filled' ? styles['shiftChip--filled'] : '',
-    fill === 'partial' ? styles['shiftChip--partial'] : '',
-  ].filter(Boolean).join(' ')
-
-  return (
-    <span className={chipClass}>
-      {shift.start_time}–{shift.end_time}
-      <span className={styles.shiftAssigned}>
-        {shift.assignments.length}/{post.headcount_required}
-      </span>
-    </span>
-  )
-}
-
 // ─── PostRow ──────────────────────────────────────────────────────────────────
 
 function PostRow({ post }: { post: BoardPost }) {
@@ -96,13 +65,15 @@ function PostRow({ post }: { post: BoardPost }) {
         <span className={styles.postTime}>{post.start_time}–{post.end_time}</span>
       </div>
       <div className={styles.shiftList}>
-        {post.shifts.length === 0 ? (
-          <span className={styles.shiftChip} style={{ color: 'var(--text-faint)' }}>No shifts</span>
-        ) : (
-          post.shifts.map((shift) => (
-            <ShiftChip key={shift.id} shift={shift} post={post} />
-          ))
-        )}
+        {post.shifts.map((shift) => (
+          <ShiftCard
+            key={shift.id}
+            shift={shift}
+            post={post}
+            isOver={false}
+            onCardClick={() => {}}
+          />
+        ))}
       </div>
     </div>
   )

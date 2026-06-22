@@ -1,0 +1,187 @@
+/* ── Card base ───────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  min-width: 156px;
+  cursor: pointer;
+  outline: none;
+  transition:
+    box-shadow var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+
+.card:focus-visible {
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500);
+}
+
+/* ── Variants ────────────────────────────────────────────────────── */
+
+.card--open {
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-sunken);
+}
+
+.card--open:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-faint);
+}
+
+.card--partial {
+  border: 1px solid var(--warn-500);
+  background: var(--warn-bg);
+}
+
+.card--partial:hover {
+  box-shadow: var(--shadow-1);
+}
+
+.card--filled {
+  border: 1px solid var(--ok-500);
+  background: var(--ok-bg);
+}
+
+.card--filled:hover {
+  box-shadow: var(--shadow-1);
+}
+
+.card--noShow {
+  border: 1px solid var(--danger-500);
+  background: var(--danger-bg);
+}
+
+.card--noShow:hover {
+  box-shadow: var(--shadow-1);
+}
+
+/* ── Drag-over highlight (wired in 4.5) ─────────────────────────── */
+
+.card--dragOver {
+  box-shadow: 0 0 0 2px var(--gold-500) !important;
+  background: var(--gold-dim) !important;
+}
+
+/* ── Time row ────────────────────────────────────────────────────── */
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.timeRange {
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+/* ── Duration ────────────────────────────────────────────────────── */
+
+.duration {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Headcount badge ─────────────────────────────────────────────── */
+
+.headcount {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.headcount--open {
+  background: rgba(210, 59, 78, 0.1);
+  color: var(--danger-500);
+}
+
+.headcount--partial {
+  background: var(--warn-bg);
+  color: var(--warn-500);
+}
+
+.headcount--filled {
+  background: var(--ok-bg);
+  color: var(--ok-500);
+}
+
+.headcount--noShow {
+  background: var(--danger-bg);
+  color: var(--danger-500);
+}
+
+/* ── Worker pills ────────────────────────────────────────────────── */
+
+.workers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 4px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.pill--noShow .pillName {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+
+.pill--more {
+  background: var(--surface-sunken);
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Type badge inside pill ──────────────────────────────────────── */
+
+.pillType {
+  font-size: 0.58rem;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.pillType--guard {
+  background: rgba(47, 127, 184, 0.15);
+  color: var(--info-500);
+}
+
+.pillType--staffer {
+  background: rgba(224, 138, 0, 0.15);
+  color: var(--warn-500);
+}
+
+.pillName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

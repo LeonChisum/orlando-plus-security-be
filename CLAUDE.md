@@ -693,7 +693,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 |---|---|---|
 | 4.1 | Board layout + routing + useBoardData hook | ✅ |
 | 4.2 | Date navigation + day filter | ✅ |
-| 4.3 | ShiftCard component | ⬜ |
+| 4.3 | ShiftCard component | ✅ |
 | 4.4 | Worker panel + useWorkerPanel | ⬜ |
 | 4.5 | dnd-kit setup + BoardDndProvider | ⬜ |
 | 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.2 — Date navigation + day filter  
-**Next ticket to start:** 4.3 — ShiftCard component  
+**Last completed ticket:** 4.3 — ShiftCard component  
+**Next ticket to start:** 4.4 — Worker panel + useWorkerPanel  
 **Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) not yet installed — needed for 4.5.  
-**Notes:** 4.2 added `DateTabBar` component to `ScheduleBoardPage.tsx` — one tab per unique shift date, gold active underline, keyboard/focus-visible accessible. `useSearchParams` drives `selectedDate`; URL param `?date=YYYY-MM-DD` is set on load (defaults to today if in range, else first show date). `getTodayStr()` and `formatDateTab()` helpers use local-time `Date` construction to avoid UTC off-by-one on ISO date strings. `ScheduleBoardPage.module.css` — `.dateTabs`, `.dateTab`, `.dateTab--active`, `.dateTabWeekday`, `.dateTabDate` added with scrollbar-hidden overflow for narrow viewports.
+**Notes:** 4.3 created `client/src/features/schedule/components/ShiftCard.tsx` + `ShiftCard.module.css`. Props: `shift: BoardShift`, `post: BoardPost`, `isOver: boolean` (wired in 4.5), `onCardClick: () => void` (wired in 4.10). Variant computed from active assignment count (pending + confirmed vs headcount_required); shift-level `no_show` status takes precedence. Worker pills show up to 3 (name + G/S type badge); overflow as "+N more". `calcDurationHours` reused from imports utils — times stripped to "HH:MM" before passing. `ShiftChip` placeholder removed from `ScheduleBoardPage.tsx`; `PostRow` now renders `ShiftCard` with `isOver=false` and no-op click handler.
