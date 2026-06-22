@@ -259,7 +259,7 @@
   margin: 0;
 }
 
-/* ── Overview: Hall sections ────────────────────────────────────── */
+/* ── Overview: Date sections (outer, collapsible) ───────────────── */
 
 .sd-overview {
   margin-top: var(--space-4);
@@ -271,14 +271,14 @@
   gap: var(--space-3);
 }
 
-.sd-hall-section {
+.sd-date-section {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface-raised);
   overflow: hidden;
 }
 
-.sd-hall-header {
+.sd-date-header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -292,7 +292,7 @@
   transition: background var(--dur-fast) var(--ease);
 }
 
-.sd-hall-header:hover {
+.sd-date-header:hover {
   background: var(--surface-hover);
 }
 
@@ -303,22 +303,13 @@
   width: 10px;
 }
 
-.sd-hall-name {
+.sd-date-title {
   font-family: var(--font-head);
-  font-size: 0.875rem;
+  font-size: 0.925rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-strong);
-}
-
-.sd-hall-floor {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 1px 8px;
 }
 
 .sd-hall-counts {
@@ -328,37 +319,46 @@
   font-variant-numeric: tabular-nums;
 }
 
-.sd-hall-body {
+.sd-date-body {
   display: flex;
   flex-direction: column;
 }
 
-.sd-hall-empty {
-  padding: var(--space-4);
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin: 0;
-}
+/* ── Overview: Hall sub-groups within a date ────────────────────── */
 
-/* ── Overview: Date groups ──────────────────────────────────────── */
-
-.sd-date-group {
+.sd-hall-group {
   border-bottom: 1px solid var(--border);
 }
 
-.sd-date-group:last-child {
+.sd-hall-group:last-child {
   border-bottom: none;
 }
 
-.sd-date-label {
+.sd-hall-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-muted);
   background: var(--surface-canvas);
   border-bottom: 1px solid var(--border);
+}
+
+.sd-hall-name {
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sd-hall-floor {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 1px 8px;
 }
 
 .sd-post-list {

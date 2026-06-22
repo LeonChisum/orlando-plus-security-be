@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { MappedPostRow, PendingHall, ImportSession } from '../../../types/index'
+import type { MappedPostRow, PendingHall } from '../../../types/index'
 import { supabase } from '../../../lib/supabase'
 import { commitImport } from '../utils/commitImport'
 import styles from './ReviewConfirmStep.module.css'
@@ -192,10 +192,8 @@ const ReviewConfirmStep = ({ showId, posts, pendingHalls, skippedEmptyCount = 0,
       .map((rawIdx) => dbConflictMap.get(rawIdx)?.id)
       .filter((id): id is string => !!id)
 
-    const session: ImportSession = { showId, posts: postsToCommit, pendingHalls }
-
     try {
-      await commitImport(session, supabase, overwriteIds)
+      await commitImport(showId, postsToCommit, pendingHalls, supabase, overwriteIds)
       onSuccess()
     } catch (err) {
       setCommitError(

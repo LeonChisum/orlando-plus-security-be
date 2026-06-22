@@ -11,7 +11,7 @@ interface Props {
   parsedWorkbook: ParsedWorkbook | null
   selectedSheetIndex: number
   fileName: string | null
-  onParsed: (wb: ParsedWorkbook, name: string) => void
+  onParsed: (wb: ParsedWorkbook, name: string, size: number) => void
   onSheetChange: (idx: number) => void
   onBack: () => void
   onContinue: () => void
@@ -45,7 +45,7 @@ const FileUploadStep = ({
     setParsing(true)
     try {
       const wb = await parseWorkbook(file)
-      onParsed(wb, file.name)
+      onParsed(wb, file.name, file.size)
     } catch {
       setError('Could not parse the file. Make sure it is a valid Excel workbook.')
     } finally {

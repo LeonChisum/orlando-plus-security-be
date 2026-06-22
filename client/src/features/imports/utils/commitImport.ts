@@ -1,8 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ImportSession, CommitResult, HallInsert } from '../../../types/index'
+import type { MappedPostRow, PendingHall, CommitResult, HallInsert } from '../../../types/index'
 
 export async function commitImport(
-  session: ImportSession,
+  showId: string,
+  mappedPosts: MappedPostRow[],
+  pendingHalls: PendingHall[],
   supabase: SupabaseClient,
   overwritePostIds: string[] = [],
 ): Promise<CommitResult> {
@@ -16,9 +18,9 @@ export async function commitImport(
   const hallIdMap = new Map<string, string>()
   const createdHallIds: string[] = []
 
-  if (session.pendingHalls.length > 0) {
-    const hallInserts: HallInsert[] = session.pendingHalls.map((ph) => ({
-      show_id: session.showId,
+  if (pendingHalls.length > 0) {
+    const hallInserts: HallInsert[] = pendingHalls.map((ph) => ({
+      show_id: showId,
       name: ph.name,
       ...(ph.floor_level != null ? { floor_level: ph.floor_level } : {}),
     }))
@@ -31,13 +33,13 @@ export async function commitImport(
     if (hallError) throw hallError
 
     ;(createdHalls ?? []).forEach((hall, idx) => {
-      hallIdMap.set(session.pendingHalls[idx].tempId, hall.id)
+      hallIdMap.set(pendingHalls[idx].tempId, hall.id)
       createdHallIds.push(hall.id)
     })
   }
 
   // 3. Resolve tempIds and build post insert payload
-  const postInserts = session.posts.map((post) => ({
+  const postInserts = mappedPosts.map((post) => ({
     hall_id: hallIdMap.get(post.hall_id!) ?? post.hall_id!,
     name: post.name,
     post_type: post.post_type,

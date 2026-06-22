@@ -249,7 +249,11 @@ export interface PendingHall {
 
 export interface ImportSession {
   showId: string
-  posts: MappedPostRow[]
+  step: 1 | 2 | 3 | 4
+  fileName: string | null
+  fileSize: number | null
+  skippedEmptyCount: number
+  mappedPosts: MappedPostRow[]
   pendingHalls: PendingHall[]
 }
 

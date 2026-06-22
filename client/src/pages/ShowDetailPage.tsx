@@ -26,14 +26,27 @@ function formatDate(iso: string): string {
   })
 }
 
-function groupByDate(posts: PostWithShifts[]): [string, PostWithShifts[]][] {
-  const map = new Map<string, PostWithShifts[]>()
-  for (const post of posts) {
-    const bucket = map.get(post.date) ?? []
-    bucket.push(post)
-    map.set(post.date, bucket)
+type HallPostGroup = { hall: HallWithPosts; posts: PostWithShifts[] }
+type DateGroup = { date: string; hallGroups: HallPostGroup[] }
+
+function groupByDateThenHall(halls: HallWithPosts[]): DateGroup[] {
+  const dateMap = new Map<string, Map<string, HallPostGroup>>()
+  for (const hall of halls) {
+    for (const post of hall.posts) {
+      if (!dateMap.has(post.date)) dateMap.set(post.date, new Map())
+      const hallMap = dateMap.get(post.date)!
+      if (!hallMap.has(hall.id)) hallMap.set(hall.id, { hall, posts: [] })
+      hallMap.get(hall.id)!.posts.push(post)
+    }
   }
-  return [...map.entries()].sort(([a], [b]) => a.localeCompare(b))
+  return [...dateMap.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, hallMap]) => ({
+      date,
+      hallGroups: [...hallMap.values()].sort((a, b) =>
+        a.hall.name.localeCompare(b.hall.name),
+      ),
+    }))
 }
 
 // ─── ReimportModal ───────────────────────────────────────────────────────────
@@ -82,24 +95,41 @@ const PostRow = ({ post }: { post: PostWithShifts }) => (
   </div>
 )
 
-// ─── HallSection ─────────────────────────────────────────────────────────────
+// ─── HallGroup ────────────────────────────────────────────────────────────────
 
-const HallSection = ({ hall }: { hall: HallWithPosts }) => {
+const HallGroup = ({ hall, posts }: HallPostGroup) => (
+  <div className="sd-hall-group">
+    <div className="sd-hall-label">
+      <span className="sd-hall-name">{hall.name}</span>
+      {hall.floor_level && <span className="sd-hall-floor">{hall.floor_level}</span>}
+    </div>
+    <div className="sd-post-list">
+      {posts.map((post) => (
+        <PostRow key={post.id} post={post} />
+      ))}
+    </div>
+  </div>
+)
+
+// ─── DateSection ──────────────────────────────────────────────────────────────
+
+const DateSection = ({ date, hallGroups }: DateGroup) => {
   const [collapsed, setCollapsed] = useState(false)
-  const dateGroups = useMemo(() => groupByDate(hall.posts), [hall.posts])
-  const postCount = hall.posts.length
-  const shiftCount = hall.posts.reduce((acc, p) => acc + p.shifts.length, 0)
+  const postCount = hallGroups.reduce((acc, hg) => acc + hg.posts.length, 0)
+  const shiftCount = hallGroups.reduce(
+    (acc, hg) => acc + hg.posts.reduce((a, p) => a + p.shifts.length, 0),
+    0,
+  )
 
   return (
-    <section className="sd-hall-section">
+    <section className="sd-date-section">
       <button
-        className="sd-hall-header"
+        className="sd-date-header"
         onClick={() => setCollapsed((c) => !c)}
         aria-expanded={!collapsed}
       >
         <span className="sd-hall-chevron" aria-hidden>{collapsed ? '▶' : '▼'}</span>
-        <span className="sd-hall-name">{hall.name}</span>
-        {hall.floor_level && <span className="sd-hall-floor">{hall.floor_level}</span>}
+        <span className="sd-date-title">{formatDate(date)}</span>
         <span className="sd-hall-counts">
           {postCount} {postCount === 1 ? 'post' : 'posts'}
           {' · '}
@@ -108,21 +138,10 @@ const HallSection = ({ hall }: { hall: HallWithPosts }) => {
       </button>
 
       {!collapsed && (
-        <div className="sd-hall-body">
-          {dateGroups.length === 0 ? (
-            <p className="sd-hall-empty">No posts in this hall.</p>
-          ) : (
-            dateGroups.map(([date, posts]) => (
-              <div key={date} className="sd-date-group">
-                <div className="sd-date-label">{formatDate(date)}</div>
-                <div className="sd-post-list">
-                  {posts.map((post) => (
-                    <PostRow key={post.id} post={post} />
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
+        <div className="sd-date-body">
+          {hallGroups.map(({ hall, posts }) => (
+            <HallGroup key={hall.id} hall={hall} posts={posts} />
+          ))}
         </div>
       )}
     </section>
@@ -227,28 +246,11 @@ const ShowDetailPage = () => {
 
       {/* ── Overview ── */}
       {view === 'overview' && (
-        <div className="sd-overview">
-          {!hasPosts ? (
-            <div className="show-detail-empty">
-              <p className="show-detail-empty-headline">No posts imported yet</p>
-              <p className="show-detail-empty-sub">
-                Import a buy order to create posts and shifts for this show.
-              </p>
-              <button className="btn btn--primary" onClick={() => navigate(`/shows/${id}/import`)}>
-                Import buy order
-              </button>
-            </div>
-          ) : (
-            <div className="sd-halls">
-              {show.halls
-                .filter((h) => h.posts.length > 0)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((hall) => (
-                  <HallSection key={hall.id} hall={hall} />
-                ))}
-            </div>
-          )}
-        </div>
+        <OverviewPanel
+          hasPosts={hasPosts}
+          halls={show.halls}
+          onImport={() => navigate(`/shows/${id}/import`)}
+        />
       )}
 
       {/* ── Calendar ── */}
@@ -265,6 +267,47 @@ const ShowDetailPage = () => {
           onClose={() => setReimportModal(false)}
         />
       )}
+    </div>
+  )
+}
+
+// ─── OverviewPanel ────────────────────────────────────────────────────────────
+
+interface OverviewPanelProps {
+  hasPosts: boolean
+  halls: HallWithPosts[]
+  onImport: () => void
+}
+
+const OverviewPanel = ({ hasPosts, halls, onImport }: OverviewPanelProps) => {
+  const dateGroups = useMemo(
+    () => groupByDateThenHall(halls.filter((h) => h.posts.length > 0)),
+    [halls],
+  )
+
+  if (!hasPosts) {
+    return (
+      <div className="sd-overview">
+        <div className="show-detail-empty">
+          <p className="show-detail-empty-headline">No posts imported yet</p>
+          <p className="show-detail-empty-sub">
+            Import a buy order to create posts and shifts for this show.
+          </p>
+          <button className="btn btn--primary" onClick={onImport}>
+            Import buy order
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="sd-overview">
+      <div className="sd-halls">
+        {dateGroups.map(({ date, hallGroups }) => (
+          <DateSection key={date} date={date} hallGroups={hallGroups} />
+        ))}
+      </div>
     </div>
   )
 }
