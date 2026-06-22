@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost, BoardShift } from '../features/schedule/hooks/useBoardData'
 import styles from './ScheduleBoardPage.module.css'
@@ -7,11 +7,55 @@ import '../features/shows/components/Show.css'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+function getTodayStr(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function formatDateTab(isoDate: string): { weekday: string; short: string } {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const d = new Date(year, month - 1, day)
+  return {
+    weekday: d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+    short: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  }
+}
+
 function shiftFillStatus(shift: BoardShift, post: BoardPost): 'open' | 'partial' | 'filled' {
   const n = shift.assignments.length
   if (n === 0) return 'open'
   if (n >= post.headcount_required) return 'filled'
   return 'partial'
+}
+
+// ─── DateTabBar ───────────────────────────────────────────────────────────────
+
+interface DateTabBarProps {
+  dates: string[]
+  selectedDate: string
+  onSelect: (date: string) => void
+}
+
+function DateTabBar({ dates, selectedDate, onSelect }: DateTabBarProps) {
+  return (
+    <nav className={styles.dateTabs} aria-label="Date filter">
+      {dates.map((date) => {
+        const { weekday, short } = formatDateTab(date)
+        const isActive = date === selectedDate
+        return (
+          <button
+            key={date}
+            className={`${styles.dateTab} ${isActive ? styles['dateTab--active'] : ''}`}
+            onClick={() => onSelect(date)}
+            aria-pressed={isActive}
+          >
+            <span className={styles.dateTabWeekday}>{weekday}</span>
+            <span className={styles.dateTabDate}>{short}</span>
+          </button>
+        )
+      })}
+    </nav>
+  )
 }
 
 // ─── ShiftChip (placeholder for 4.3 ShiftCard) ───────────────────────────────
@@ -128,6 +172,7 @@ export default function ScheduleBoardPage() {
   const { id: showId } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
+  const [searchParams, setSearchParams] = useSearchParams()
   const { data: boardData, isLoading, isError } = useBoardData(showId ?? '')
 
   const dates = useMemo(() => {
@@ -138,7 +183,23 @@ export default function ScheduleBoardPage() {
     return [...set].sort()
   }, [boardData])
 
-  const selectedDate = dates[0] ?? ''
+  // Sync URL param: set on first load or when param is missing/invalid
+  useEffect(() => {
+    if (dates.length === 0) return
+    const current = searchParams.get('date')
+    if (!current || !dates.includes(current)) {
+      const today = getTodayStr()
+      setSearchParams({ date: dates.includes(today) ? today : dates[0] }, { replace: true })
+    }
+  }, [dates, searchParams, setSearchParams])
+
+  const selectedDate = useMemo(() => {
+    if (dates.length === 0) return ''
+    const param = searchParams.get('date')
+    if (param && dates.includes(param)) return param
+    const today = getTodayStr()
+    return dates.includes(today) ? today : dates[0]
+  }, [dates, searchParams])
 
   const totalShifts = useMemo(
     () => boardData?.halls.flatMap((h) => h.posts.flatMap((p) => p.shifts)).length ?? 0,
@@ -226,6 +287,13 @@ export default function ScheduleBoardPage() {
           </span>
         </div>
       </header>
+
+      {/* ── Date tabs ── */}
+      <DateTabBar
+        dates={dates}
+        selectedDate={selectedDate}
+        onSelect={(date) => setSearchParams({ date })}
+      />
 
       {/* ── Body ── */}
       <div className={styles.body}>

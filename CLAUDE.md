@@ -692,7 +692,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | # | Ticket | Status |
 |---|---|---|
 | 4.1 | Board layout + routing + useBoardData hook | ✅ |
-| 4.2 | Date navigation + day filter | ⬜ |
+| 4.2 | Date navigation + day filter | ✅ |
 | 4.3 | ShiftCard component | ⬜ |
 | 4.4 | Worker panel + useWorkerPanel | ⬜ |
 | 4.5 | dnd-kit setup + BoardDndProvider | ⬜ |
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.1 — Board layout + routing + useBoardData hook  
-**Next ticket to start:** 4.2 — Date navigation + day filter  
+**Last completed ticket:** 4.2 — Date navigation + day filter  
+**Next ticket to start:** 4.3 — ShiftCard component  
 **Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) not yet installed — needed for 4.5.  
-**Notes:** Phase 3 was fully complete (3.8 + 3.9 had been built but CLAUDE.md not updated). Phase 4 kicked off with 4.1: `client/src/features/schedule/hooks/useBoardData.ts` — full join query (shows → halls → posts → shifts → assignments → workers), exports `BoardData`, `BoardHall`, `BoardPost`, `BoardShift`, `BoardAssignment` types. `client/src/pages/ScheduleBoardPage.tsx` — full-height flex layout (header + canvas + 280px worker panel sidebar); `BoardCanvas` filters posts by selected date and renders hall groups → post rows → inline shift chips (placeholder for 4.3 ShiftCard); loading, error, and zero-shifts empty states all handled. `client/src/router.tsx` — `/schedule/:id` route added under `RequireAuth`/`Layout`, linked from the existing "Open Schedule Board" button on ShowDetailPage.
+**Notes:** 4.2 added `DateTabBar` component to `ScheduleBoardPage.tsx` — one tab per unique shift date, gold active underline, keyboard/focus-visible accessible. `useSearchParams` drives `selectedDate`; URL param `?date=YYYY-MM-DD` is set on load (defaults to today if in range, else first show date). `getTodayStr()` and `formatDateTab()` helpers use local-time `Date` construction to avoid UTC off-by-one on ISO date strings. `ScheduleBoardPage.module.css` — `.dateTabs`, `.dateTab`, `.dateTab--active`, `.dateTabWeekday`, `.dateTabDate` added with scrollbar-hidden overflow for narrow viewports.

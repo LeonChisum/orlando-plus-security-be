@@ -65,6 +65,76 @@
   white-space: nowrap;
 }
 
+/* ── Date tab bar ────────────────────────────────────────────────── */
+
+.dateTabs {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-5);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dateTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.dateTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-2) var(--space-4);
+  min-width: 72px;
+  min-height: var(--tap-min);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  white-space: nowrap;
+}
+
+.dateTab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.dateTab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500);
+  border-radius: var(--radius-sm);
+}
+
+.dateTab--active {
+  color: var(--text-strong);
+  border-bottom-color: var(--gold-500);
+}
+
+.dateTabWeekday {
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: inherit;
+}
+
+.dateTab--active .dateTabWeekday {
+  color: var(--gold-600);
+}
+
+.dateTabDate {
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Body ────────────────────────────────────────────────────────── */
 
 .body {
