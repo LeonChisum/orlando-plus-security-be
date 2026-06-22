@@ -675,8 +675,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 3.1 | splitPostIntoShifts() core function | ✅ |
 | 3.2 | Vitest suite — split engine | ✅ |
 | 3.3 | suggestStrategy() | ✅ |
-| 3.4 | Split preview UI (show detail integration) | ⬜ |
-| 3.5 | SplitConfirmModal (per-post) | ⬜ |
+| 3.4 | Split preview UI (show detail integration) | ✅ |
+| 3.5 | SplitConfirmModal (per-post) | ✅ |
 | 3.6 | BulkSplitReviewPanel | ⬜ |
 | 3.7 | commitShifts() + race condition guard | ⬜ |
 | 3.8 | Reset shifts | ⬜ |
@@ -686,7 +686,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 3.3 — suggestStrategy()  
-**Next ticket to start:** 3.4 — Split preview UI (show detail integration)  
+**Last completed ticket:** 3.5 — SplitConfirmModal (per-post)  
+**Next ticket to start:** 3.6 — BulkSplitReviewPanel  
 **Blockers / open questions:** None.  
-**Notes:** `suggestStrategy(post)` added to `splitPostIntoShifts.ts` — reuses `toMinutes` / `getAbsoluteEnd` already in the file; no cross-feature import needed. Returns `equal_thirds` (≥18h), `equal_halves` (8–17h), or `single` (<8h). 4 new Vitest tests cover all three thresholds, boundary values, and midnight-spanning posts — 71 total passing. The split engine now exports: `toMinutes`, `toTimeString`, `splitPostIntoShifts`, `validateSplits`, `suggestStrategy`, and types `ShiftOverride`, `PendingShift`, `SplitValidationError`.
+**Notes:** `SplitConfirmModal` at `client/src/features/schedule/components/SplitConfirmModal.tsx`. Shows post info (type badge, time, headcount), radio-button strategy picker (single / equal_halves / equal_thirds) pre-selected to `suggestStrategy` result with live-updating shift preview as strategy changes, and Confirm/Cancel actions. `onCommit(post, strategy)` currently just closes the modal — will be wired to `commitShifts()` in ticket 3.7. Mounted from `ShowDetailPage` on `splitPost` state; Esc + backdrop both close. `SplitPreview` (3.4) inline preview uses the same strategy logic for the pre-confirm view. Global `Show.css` modal classes used for overlay/panel shell; modal-specific styles in `SplitConfirmModal.module.css`.

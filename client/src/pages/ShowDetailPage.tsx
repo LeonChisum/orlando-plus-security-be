@@ -4,7 +4,10 @@ import { useShowDetail } from '../features/shows/hooks/useShowDetail'
 import type { HallWithPosts, PostWithShifts } from '../features/shows/hooks/useShowDetail'
 import ShowModal from '../features/shows/components/ShowModal'
 import ShowCalendarView from '../features/shows/components/ShowCalendarView'
+import SplitPreview from '../features/schedule/components/SplitPreview'
+import SplitConfirmModal from '../features/schedule/components/SplitConfirmModal'
 import Loader from '../components/Loader'
+import type { Post } from '../types/index'
 import '../features/shows/components/Show.css'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -77,8 +80,13 @@ const ReimportModal = ({ onConfirm, onClose }: { onConfirm: () => void; onClose:
 
 // ─── PostRow ─────────────────────────────────────────────────────────────────
 
-const PostRow = ({ post }: { post: PostWithShifts }) => (
-  <div className="sd-post-row">
+interface PostRowProps {
+  post: PostWithShifts
+  onSplitConfirm: (post: Post) => void
+}
+
+const PostRow = ({ post, onSplitConfirm }: PostRowProps) => (
+  <div className={`sd-post-row${post.shifts.length === 0 ? ' sd-post-row--unsplit' : ''}`}>
     <span className="sd-post-name">{post.name}</span>
     <span className={`sd-type-badge sd-type-badge--${post.post_type}`}>
       {post.post_type === 'security' ? 'Security' : 'Staffing'}
@@ -90,14 +98,25 @@ const PostRow = ({ post }: { post: PostWithShifts }) => (
       {post.headcount_required} {post.headcount_required === 1 ? 'person' : 'people'}
     </span>
     <span className="sd-post-meta sd-post-shifts">
-      {post.shifts.length} {post.shifts.length === 1 ? 'shift' : 'shifts'}
+      {post.shifts.length > 0
+        ? `${post.shifts.length} ${post.shifts.length === 1 ? 'shift' : 'shifts'}`
+        : '—'}
     </span>
+    {post.shifts.length === 0 && (
+      <div className="sd-split-preview-bar">
+        <SplitPreview post={post} onConfirm={onSplitConfirm} />
+      </div>
+    )}
   </div>
 )
 
 // ─── HallGroup ────────────────────────────────────────────────────────────────
 
-const HallGroup = ({ hall, posts }: HallPostGroup) => (
+interface HallGroupProps extends HallPostGroup {
+  onSplitConfirm: (post: Post) => void
+}
+
+const HallGroup = ({ hall, posts, onSplitConfirm }: HallGroupProps) => (
   <div className="sd-hall-group">
     <div className="sd-hall-label">
       <span className="sd-hall-name">{hall.name}</span>
@@ -105,7 +124,7 @@ const HallGroup = ({ hall, posts }: HallPostGroup) => (
     </div>
     <div className="sd-post-list">
       {posts.map((post) => (
-        <PostRow key={post.id} post={post} />
+        <PostRow key={post.id} post={post} onSplitConfirm={onSplitConfirm} />
       ))}
     </div>
   </div>
@@ -113,7 +132,11 @@ const HallGroup = ({ hall, posts }: HallPostGroup) => (
 
 // ─── DateSection ──────────────────────────────────────────────────────────────
 
-const DateSection = ({ date, hallGroups }: DateGroup) => {
+interface DateSectionProps extends DateGroup {
+  onSplitConfirm: (post: Post) => void
+}
+
+const DateSection = ({ date, hallGroups, onSplitConfirm }: DateSectionProps) => {
   const [collapsed, setCollapsed] = useState(false)
   const postCount = hallGroups.reduce((acc, hg) => acc + hg.posts.length, 0)
   const shiftCount = hallGroups.reduce(
@@ -140,7 +163,7 @@ const DateSection = ({ date, hallGroups }: DateGroup) => {
       {!collapsed && (
         <div className="sd-date-body">
           {hallGroups.map(({ hall, posts }) => (
-            <HallGroup key={hall.id} hall={hall} posts={posts} />
+            <HallGroup key={hall.id} hall={hall} posts={posts} onSplitConfirm={onSplitConfirm} />
           ))}
         </div>
       )}
@@ -159,6 +182,7 @@ const ShowDetailPage = () => {
   const [editModal, setEditModal] = useState(false)
   const [reimportModal, setReimportModal] = useState(false)
   const [view, setView] = useState<View>('overview')
+  const [splitPost, setSplitPost] = useState<Post | null>(null)
 
   if (isLoading) return <Loader />
 
@@ -250,6 +274,7 @@ const ShowDetailPage = () => {
           hasPosts={hasPosts}
           halls={show.halls}
           onImport={() => navigate(`/shows/${id}/import`)}
+          onSplitConfirm={setSplitPost}
         />
       )}
 
@@ -267,6 +292,15 @@ const ShowDetailPage = () => {
           onClose={() => setReimportModal(false)}
         />
       )}
+
+      {/* SplitConfirmModal — commitShifts wired in ticket 3.7 */}
+      {splitPost && (
+        <SplitConfirmModal
+          post={splitPost}
+          onCommit={(_post, _strategy) => setSplitPost(null)}
+          onClose={() => setSplitPost(null)}
+        />
+      )}
     </div>
   )
 }
@@ -277,9 +311,10 @@ interface OverviewPanelProps {
   hasPosts: boolean
   halls: HallWithPosts[]
   onImport: () => void
+  onSplitConfirm: (post: Post) => void
 }
 
-const OverviewPanel = ({ hasPosts, halls, onImport }: OverviewPanelProps) => {
+const OverviewPanel = ({ hasPosts, halls, onImport, onSplitConfirm }: OverviewPanelProps) => {
   const dateGroups = useMemo(
     () => groupByDateThenHall(halls.filter((h) => h.posts.length > 0)),
     [halls],
@@ -305,7 +340,7 @@ const OverviewPanel = ({ hasPosts, halls, onImport }: OverviewPanelProps) => {
     <div className="sd-overview">
       <div className="sd-halls">
         {dateGroups.map(({ date, hallGroups }) => (
-          <DateSection key={date} date={date} hallGroups={hallGroups} />
+          <DateSection key={date} date={date} hallGroups={hallGroups} onSplitConfirm={onSplitConfirm} />
         ))}
       </div>
     </div>

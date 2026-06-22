@@ -437,6 +437,17 @@
   text-align: right;
 }
 
+.sd-post-row--unsplit {
+  grid-template-rows: auto auto;
+}
+
+.sd-split-preview-bar {
+  grid-column: 1 / -1;
+  padding: var(--space-2) 0 var(--space-1);
+  border-top: 1px dashed var(--border);
+  margin-top: var(--space-1);
+}
+
 @media (max-width: 640px) {
   .sd-post-row {
     grid-template-columns: 1fr auto;
