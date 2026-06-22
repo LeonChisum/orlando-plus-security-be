@@ -671,11 +671,22 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 ---
 
+## Phase 3 Tickets
+| 3.1 | splitPostIntoShifts() core function | ✅ |
+| 3.2 | Vitest suite — split engine | ✅ |
+| 3.3 | suggestStrategy() | ✅ |
+| 3.4 | Split preview UI (show detail integration) | ⬜ |
+| 3.5 | SplitConfirmModal (per-post) | ⬜ |
+| 3.6 | BulkSplitReviewPanel | ⬜ |
+| 3.7 | commitShifts() + race condition guard | ⬜ |
+| 3.8 | Reset shifts | ⬜ |
+| 3.9 | Show detail shift count + board unlock | ⬜ |
+
 ## Session Handoff
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 2.7 — Full show detail page (posts by hall)  
-**Next ticket to start:** 2.8 — Import session recovery (sessionStorage)  
+**Last completed ticket:** 3.3 — suggestStrategy()  
+**Next ticket to start:** 3.4 — Split preview UI (show detail integration)  
 **Blockers / open questions:** None.  
-**Notes:** 2.6 hardened the import pipeline — `calcDurationHours` utility (with Vitest coverage), zero-duration validation, midnight-spanning support, silent empty-row skipping with count, date normalization to ISO via `parseDate`, headcount 0→1 default with `headcountDefaulted` flag, `ExtractionResult` return type from `extractPostRows`. `ReviewConfirmStep` gained three new info/warn/error banners driven by these flags. 2.7 added `useShowDetail` hook (`features/shows/hooks/useShowDetail.ts`) that fetches show + halls + posts + shift counts via a single Supabase join. `ShowDetailPage` rebuilt: Overview tab shows collapsible hall sections → date groups → post rows (name, type badge, time window, headcount, shift count); Import button becomes "Re-import" with confirm modal when posts exist; "View schedule" button disabled until shifts exist (Phase 3). Hall/post/date styles added to `Show.css`.
+**Notes:** `suggestStrategy(post)` added to `splitPostIntoShifts.ts` — reuses `toMinutes` / `getAbsoluteEnd` already in the file; no cross-feature import needed. Returns `equal_thirds` (≥18h), `equal_halves` (8–17h), or `single` (<8h). 4 new Vitest tests cover all three thresholds, boundary values, and midnight-spanning posts — 71 total passing. The split engine now exports: `toMinutes`, `toTimeString`, `splitPostIntoShifts`, `validateSplits`, `suggestStrategy`, and types `ShiftOverride`, `PendingShift`, `SplitValidationError`.
