@@ -694,7 +694,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.1 | Board layout + routing + useBoardData hook | ✅ |
 | 4.2 | Date navigation + day filter | ✅ |
 | 4.3 | ShiftCard component | ✅ |
-| 4.4 | Worker panel + useWorkerPanel | ⬜ |
+| 4.4 | Worker panel + useWorkerPanel | ✅ |
 | 4.5 | dnd-kit setup + BoardDndProvider | ⬜ |
 | 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
 | 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.3 — ShiftCard component  
-**Next ticket to start:** 4.4 — Worker panel + useWorkerPanel  
-**Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) not yet installed — needed for 4.5.  
-**Notes:** 4.3 created `client/src/features/schedule/components/ShiftCard.tsx` + `ShiftCard.module.css`. Props: `shift: BoardShift`, `post: BoardPost`, `isOver: boolean` (wired in 4.5), `onCardClick: () => void` (wired in 4.10). Variant computed from active assignment count (pending + confirmed vs headcount_required); shift-level `no_show` status takes precedence. Worker pills show up to 3 (name + G/S type badge); overflow as "+N more". `calcDurationHours` reused from imports utils — times stripped to "HH:MM" before passing. `ShiftChip` placeholder removed from `ScheduleBoardPage.tsx`; `PostRow` now renders `ShiftCard` with `isOver=false` and no-op click handler.
+**Last completed ticket:** 4.4 — Worker panel + useWorkerPanel  
+**Next ticket to start:** 4.5 — dnd-kit setup + BoardDndProvider  
+**Blockers / open questions:** dnd-kit (`@dnd-kit/core`, `@dnd-kit/utilities`) must be installed before 4.5 begins — `npm install @dnd-kit/core @dnd-kit/utilities` from `/client`.  
+**Notes:** 4.3 created `ShiftCard.tsx` + `ShiftCard.module.css`. 4.4 created `useWorkerPanel.ts` — 3 parallel queries (workers, per_show availability, standing availability); `assignmentsByWorker` derived from `halls` prop via `useMemo` (no extra query). Per_show availability overrides standing when both exist for a worker. `WorkerPanel.tsx` + `WorkerPanel.module.css` — search input, 4 filter tabs (All/Available/Guards/Staffers), collapsible groups (Supervisors → Guards → Staffers), worker cards with G/S type badge, license # for guards, availability badge (✓ or ⚠), and assignment pills ("HHMM–HHMM" format). `ScheduleBoardPage.tsx` — placeholder `<aside>` replaced with `<WorkerPanel showId date halls />`; orphaned panel CSS removed from page module.

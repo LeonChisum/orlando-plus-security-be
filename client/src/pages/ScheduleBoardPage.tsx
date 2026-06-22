@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
 import ShiftCard from '../features/schedule/components/ShiftCard'
+import WorkerPanel from '../features/schedule/components/WorkerPanel'
 import styles from './ScheduleBoardPage.module.css'
 import '../features/shows/components/Show.css'
 
@@ -270,18 +271,12 @@ export default function ScheduleBoardPage() {
       <div className={styles.body}>
         <BoardCanvas halls={boardData.halls} selectedDate={selectedDate} />
 
-        {/* ── Worker panel placeholder (4.4) ── */}
-        <aside className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <span className={styles.panelTitle}>Workers</span>
-          </div>
-          <div className={styles.panelPlaceholder}>
-            <span>👷</span>
-            <p className={styles.panelPlaceholderText}>
-              Worker assignment panel coming in ticket 4.4
-            </p>
-          </div>
-        </aside>
+        {/* ── Worker panel (4.4) ── */}
+        <WorkerPanel
+          showId={showId ?? ''}
+          date={selectedDate}
+          halls={boardData.halls}
+        />
       </div>
     </div>
   )

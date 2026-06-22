@@ -1,0 +1,303 @@
+/* ── Panel shell ─────────────────────────────────────────────────── */
+
+.panel {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+
+.header {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.workerCount {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+}
+
+/* ── Search ──────────────────────────────────────────────────────── */
+
+.searchWrap {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 6px var(--space-3);
+  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  box-sizing: border-box;
+}
+
+.searchInput::placeholder {
+  color: var(--text-faint);
+}
+
+.searchInput:focus {
+  border-color: var(--border-gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+}
+
+/* ── Filter tabs ─────────────────────────────────────────────────── */
+
+.filterTabs {
+  flex-shrink: 0;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.filterTab {
+  flex: 1;
+  padding: var(--space-2) var(--space-1);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  white-space: nowrap;
+  text-align: center;
+  margin-bottom: -1px;
+}
+
+.filterTab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.filterTab:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold-500);
+}
+
+.filterTab--active {
+  color: var(--text-strong);
+  border-bottom-color: var(--gold-500);
+}
+
+/* ── Scrollable list ─────────────────────────────────────────────── */
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
+
+/* ── Worker group ────────────────────────────────────────────────── */
+
+.group {
+  margin-bottom: var(--space-1);
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.groupHeader:hover {
+  background: var(--surface-hover);
+}
+
+.groupChevron {
+  font-size: 0.6rem;
+  color: var(--text-faint);
+  transition: transform var(--dur-fast) var(--ease);
+  flex-shrink: 0;
+}
+
+.groupChevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+.groupLabel {
+  font-family: var(--font-head);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  flex: 1;
+}
+
+.groupCount {
+  font-size: 0.65rem;
+  color: var(--text-faint);
+}
+
+/* ── Worker card ─────────────────────────────────────────────────── */
+
+.workerCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  cursor: grab;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.workerCard:hover {
+  background: var(--surface-hover);
+}
+
+.workerCard:active {
+  cursor: grabbing;
+}
+
+/* type badge (G / S) */
+.typeBadge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.typeBadge--guard {
+  background: rgba(47, 127, 184, 0.15);
+  color: var(--info-500);
+}
+
+.typeBadge--staffer {
+  background: rgba(224, 138, 0, 0.15);
+  color: var(--warn-500);
+}
+
+/* card body */
+.cardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.workerName {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.licenseNum {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* assignment pills */
+.assignments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.assignPill {
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--info-bg);
+  color: var(--info-500);
+  border: 1px solid rgba(47, 127, 184, 0.25);
+  white-space: nowrap;
+}
+
+/* ── Availability status indicator ───────────────────────────────── */
+
+.availBadge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.availBadge--available {
+  background: var(--ok-bg);
+  color: var(--ok-500);
+}
+
+.availBadge--no_response {
+  background: var(--warn-bg);
+  color: var(--warn-500);
+}
+
+/* ── Empty / loading / error states ─────────────────────────────── */
+
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}

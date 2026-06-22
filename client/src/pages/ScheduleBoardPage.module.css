@@ -301,50 +301,6 @@
   font-weight: 600;
 }
 
-/* ── Worker panel placeholder ────────────────────────────────────── */
-
-.panel {
-  width: 280px;
-  flex-shrink: 0;
-  border-left: 1px solid var(--border);
-  background: var(--surface-raised);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.panelHeader {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-sunken);
-}
-
-.panelTitle {
-  font-family: var(--font-head);
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.panelPlaceholder {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-6);
-  text-align: center;
-  color: var(--text-faint);
-}
-
-.panelPlaceholderText {
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
 /* ── Loading state ───────────────────────────────────────────────── */
 
 .loadingState {
