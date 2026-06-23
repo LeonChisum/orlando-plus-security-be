@@ -12,6 +12,8 @@ import {
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { useConflictCheck } from '../hooks/useConflictCheck'
 import type { ConflictDetail } from '../hooks/useConflictCheck'
+import { useOvertimeCheck } from '../hooks/useOvertimeCheck'
+import type { OvertimeResult } from '../hooks/useOvertimeCheck'
 import styles from './BoardDndProvider.module.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -22,17 +24,21 @@ export interface ActiveDragWorker {
   workerName: string
 }
 
-export interface PendingConflict {
+// Holds data for the override modal (4.8).
+// conflicts is non-empty when hasConflict; overtimeResult is set when OT flagged.
+// Only one is populated per drag — OT check only runs after a clean conflict check.
+export interface PendingCheck {
   workerId: string
   shiftId: string
   conflicts: ConflictDetail[]
+  overtimeResult: OvertimeResult | null
 }
 
 interface BoardDndContextValue {
   activeWorker: ActiveDragWorker | null
   checkingShiftId: string | null
-  pendingConflict: PendingConflict | null
-  clearPendingConflict: () => void
+  pendingCheck: PendingCheck | null
+  clearPendingCheck: () => void
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -40,8 +46,8 @@ interface BoardDndContextValue {
 const BoardDndContext = createContext<BoardDndContextValue>({
   activeWorker: null,
   checkingShiftId: null,
-  pendingConflict: null,
-  clearPendingConflict: () => {},
+  pendingCheck: null,
+  clearPendingCheck: () => {},
 })
 
 export function useBoardDnd(): BoardDndContextValue {
@@ -95,10 +101,11 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
   const [activeWorker, setActiveWorker] = useState<ActiveDragWorker | null>(null)
   const [announcement, setAnnouncement] = useState('')
   const [checkingShiftId, setCheckingShiftId] = useState<string | null>(null)
-  const [pendingConflict, setPendingConflict] = useState<PendingConflict | null>(null)
+  const [pendingCheck, setPendingCheck] = useState<PendingCheck | null>(null)
   const { checkConflict } = useConflictCheck()
+  const { checkOvertime } = useOvertimeCheck()
 
-  const clearPendingConflict = useCallback(() => setPendingConflict(null), [])
+  const clearPendingCheck = useCallback(() => setPendingCheck(null), [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -150,28 +157,40 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       return
     }
 
+    const targetShift = { id: shiftId, date: shiftDate, start_time: shiftStart, end_time: shiftEnd }
+
     setCheckingShiftId(shiftId)
     setAnnouncement(`Checking ${workerName ?? 'worker'} for conflicts…`)
 
     try {
-      const result = await checkConflict(workerId, {
-        id: shiftId,
-        date: shiftDate,
-        start_time: shiftStart,
-        end_time: shiftEnd,
-      })
+      // ── Step 1: conflict check ────────────────────────────────────────────
+      const conflictResult = await checkConflict(workerId, targetShift)
 
-      if (result.hasConflict) {
-        setPendingConflict({ workerId, shiftId, conflicts: result.conflicts })
+      if (conflictResult.hasConflict) {
+        setPendingCheck({ workerId, shiftId, conflicts: conflictResult.conflicts, overtimeResult: null })
         setAnnouncement(
           `Conflict detected: ${workerName ?? 'Worker'} has an overlapping assignment.`,
         )
-      } else {
-        setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
-        onAssign(workerId, shiftId)
+        return
       }
+
+      // ── Step 2: overtime check (only runs after clean conflict result) ────
+      const overtimeResult = await checkOvertime(workerId, targetShift)
+
+      if (overtimeResult.hasFlag) {
+        setPendingCheck({ workerId, shiftId, conflicts: [], overtimeResult })
+        setAnnouncement(
+          `Overtime: ${workerName ?? 'Worker'} has ${round1(overtimeResult.currentHours)} hrs this week. ` +
+          `This shift adds ${round1(overtimeResult.shiftHours)} hrs, reaching ${round1(overtimeResult.projectedHours)} hrs total.`,
+        )
+        return
+      }
+
+      // ── Step 3: clean — write the assignment ─────────────────────────────
+      setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
+      onAssign(workerId, shiftId)
     } catch {
-      setAnnouncement('Could not check for conflicts. Please try again.')
+      setAnnouncement('Could not complete assignment check. Please try again.')
     } finally {
       setCheckingShiftId(null)
     }
@@ -184,7 +203,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
 
   return (
     <BoardDndContext.Provider
-      value={{ activeWorker, checkingShiftId, pendingConflict, clearPendingConflict }}
+      value={{ activeWorker, checkingShiftId, pendingCheck, clearPendingCheck }}
     >
       <DndContext
         sensors={sensors}
@@ -210,4 +229,8 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       </DndContext>
     </BoardDndContext.Provider>
   )
+}
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10
 }
