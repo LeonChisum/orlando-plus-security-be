@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
 import BoardDndProvider from '../features/schedule/components/BoardDndProvider'
+import BoardOverlay from '../features/schedule/components/BoardOverlay'
 import ShiftCard from '../features/schedule/components/ShiftCard'
 import WorkerPanel from '../features/schedule/components/WorkerPanel'
 import styles from './ScheduleBoardPage.module.css'
@@ -277,6 +278,7 @@ export default function ScheduleBoardPage() {
             halls={boardData.halls}
           />
         </div>
+        <BoardOverlay showId={showId ?? ''} />
       </BoardDndProvider>
     </div>
   )

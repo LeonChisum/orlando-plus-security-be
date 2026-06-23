@@ -26,10 +26,15 @@ export interface ActiveDragWorker {
 
 // Holds data for the override modal (4.8).
 // conflicts is non-empty when hasConflict; overtimeResult is set when OT flagged.
-// Only one is populated per drag — OT check only runs after a clean conflict check.
+// In the current pipeline (conflict → OT), only one section is populated per drag,
+// but the modal renders whichever sections have data so it can show both if needed.
 export interface PendingCheck {
   workerId: string
   shiftId: string
+  workerName: string
+  shiftDate: string
+  shiftStart: string
+  shiftEnd: string
   conflicts: ConflictDetail[]
   overtimeResult: OvertimeResult | null
 }
@@ -167,7 +172,16 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       const conflictResult = await checkConflict(workerId, targetShift)
 
       if (conflictResult.hasConflict) {
-        setPendingCheck({ workerId, shiftId, conflicts: conflictResult.conflicts, overtimeResult: null })
+        setPendingCheck({
+          workerId,
+          shiftId,
+          workerName: workerName ?? 'Unknown',
+          shiftDate,
+          shiftStart,
+          shiftEnd,
+          conflicts: conflictResult.conflicts,
+          overtimeResult: null,
+        })
         setAnnouncement(
           `Conflict detected: ${workerName ?? 'Worker'} has an overlapping assignment.`,
         )
@@ -178,7 +192,16 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       const overtimeResult = await checkOvertime(workerId, targetShift)
 
       if (overtimeResult.hasFlag) {
-        setPendingCheck({ workerId, shiftId, conflicts: [], overtimeResult })
+        setPendingCheck({
+          workerId,
+          shiftId,
+          workerName: workerName ?? 'Unknown',
+          shiftDate,
+          shiftStart,
+          shiftEnd,
+          conflicts: [],
+          overtimeResult,
+        })
         setAnnouncement(
           `Overtime: ${workerName ?? 'Worker'} has ${round1(overtimeResult.currentHours)} hrs this week. ` +
           `This shift adds ${round1(overtimeResult.shiftHours)} hrs, reaching ${round1(overtimeResult.projectedHours)} hrs total.`,

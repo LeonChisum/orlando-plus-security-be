@@ -1,0 +1,240 @@
+/* ── Body ─────────────────────────────────────────────────────────── */
+
+.body {
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.shiftContext {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Flag section (shared: conflict + OT) ─────────────────────────── */
+
+.flagSection {
+  border-radius: var(--radius);
+  border: 1px solid;
+  overflow: hidden;
+}
+
+.flagSection--conflict {
+  border-color: rgba(210, 59, 78, 0.3);
+  background: var(--danger-bg);
+}
+
+.flagSection--ot {
+  border-color: rgba(224, 138, 0, 0.3);
+  background: var(--warn-bg);
+}
+
+.flagHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.flagSection--conflict .flagHeader {
+  border-bottom-color: rgba(210, 59, 78, 0.12);
+}
+
+.flagSection--ot .flagHeader {
+  border-bottom-color: rgba(224, 138, 0, 0.12);
+}
+
+.flagIcon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.flagSection--conflict .flagIcon {
+  color: var(--danger-500);
+}
+
+.flagSection--ot .flagIcon {
+  color: var(--warn-500);
+}
+
+.flagTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.flagSection--conflict .flagTitle {
+  color: var(--danger-500);
+}
+
+.flagSection--ot .flagTitle {
+  color: var(--warn-500);
+}
+
+/* ── Conflict list ────────────────────────────────────────────────── */
+
+.flagDesc {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.conflictList {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.conflictRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.conflictShow {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.conflictPost {
+  color: var(--text);
+}
+
+.conflictPost::before {
+  content: '·';
+  margin-right: var(--space-2);
+  color: var(--text-faint);
+}
+
+.conflictTime {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  color: var(--danger-500);
+  white-space: nowrap;
+}
+
+/* ── OT list ──────────────────────────────────────────────────────── */
+
+.otList {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.otRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.82rem;
+}
+
+.otRow--total {
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(224, 138, 0, 0.2);
+  margin-top: var(--space-1);
+}
+
+.otLabel {
+  color: var(--text-muted);
+}
+
+.otValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.otRow--total .otValue {
+  color: var(--warn-500);
+}
+
+.otLimit {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Reason field ─────────────────────────────────────────────────── */
+
+.reasonField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.reasonLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.required {
+  color: var(--danger-500);
+  margin-left: 2px;
+}
+
+.reasonTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+.reasonTextarea:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  background: rgba(212, 175, 55, 0.04);
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500);
+}
+
+.reasonTextarea:disabled {
+  background: var(--surface-sunken);
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.reasonHint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  min-height: 1em;
+}
+
+/* ── Error ────────────────────────────────────────────────────────── */
+
+.errorMsg {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--danger-bg);
+  border: 1px solid rgba(210, 59, 78, 0.3);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  color: var(--danger-500);
+}
