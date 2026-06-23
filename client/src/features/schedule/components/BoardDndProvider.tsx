@@ -32,6 +32,7 @@ export interface PendingCheck {
   workerId: string
   shiftId: string
   workerName: string
+  workerType: 'guard' | 'staffer'
   shiftDate: string
   shiftStart: string
   shiftEnd: string
@@ -99,7 +100,7 @@ function WorkerMiniCard({ worker }: { worker: ActiveDragWorker }) {
 
 export interface BoardDndProviderProps {
   children: ReactNode
-  onAssign: (workerId: string, shiftId: string) => void
+  onAssign: (workerId: string, shiftId: string, workerName: string, workerType: 'guard' | 'staffer') => void
 }
 
 export default function BoardDndProvider({ children, onAssign }: BoardDndProviderProps) {
@@ -176,6 +177,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
           workerId,
           shiftId,
           workerName: workerName ?? 'Unknown',
+          workerType,
           shiftDate,
           shiftStart,
           shiftEnd,
@@ -196,6 +198,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
           workerId,
           shiftId,
           workerName: workerName ?? 'Unknown',
+          workerType,
           shiftDate,
           shiftStart,
           shiftEnd,
@@ -211,7 +214,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
 
       // ── Step 3: clean — write the assignment ─────────────────────────────
       setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
-      onAssign(workerId, shiftId)
+      onAssign(workerId, shiftId, workerName ?? 'Unknown', workerType)
     } catch {
       setAnnouncement('Could not complete assignment check. Please try again.')
     } finally {

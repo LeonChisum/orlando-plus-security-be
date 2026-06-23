@@ -1,6 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import { useBoardDnd } from './BoardDndProvider'
+import { useCreateAssignment } from '../hooks/useCreateAssignment'
 import AssignmentOverrideModal from './AssignmentOverrideModal'
 
 interface BoardOverlayProps {
@@ -9,11 +9,11 @@ interface BoardOverlayProps {
 
 export default function BoardOverlay({ showId }: BoardOverlayProps) {
   const { pendingCheck, clearPendingCheck } = useBoardDnd()
-  const queryClient = useQueryClient()
+  const { mutateAsync: createAssignment } = useCreateAssignment()
 
   if (!pendingCheck) return null
 
-  const { workerId, shiftId, workerName, shiftDate, shiftStart, shiftEnd, conflicts, overtimeResult } =
+  const { workerId, shiftId, workerName, workerType, shiftDate, conflicts, overtimeResult } =
     pendingCheck
 
   async function handleProceed(reason: string): Promise<void> {
@@ -21,27 +21,16 @@ export default function BoardOverlay({ showId }: BoardOverlayProps) {
       data: { session },
     } = await supabase.auth.getSession()
 
-    const { error: assignError } = await supabase.from('assignments').insert({
-      shift_id: shiftId,
-      worker_id: workerId,
-      status: 'pending',
-      override_reason: reason,
-      override_by: session?.user?.id ?? null,
+    await createAssignment({
+      showId,
+      shiftId,
+      workerId,
+      workerName,
+      workerType,
+      overrideReason: reason,
+      overrideBy: session?.user?.id ?? undefined,
     })
 
-    if (assignError) throw assignError
-
-    if (overtimeResult?.hasFlag) {
-      const { error: otError } = await supabase.from('overtime_flags').insert({
-        worker_id: workerId,
-        show_id: showId,
-        week_start: overtimeResult.weekStart,
-        total_hours: overtimeResult.projectedHours,
-      })
-      if (otError) throw otError
-    }
-
-    await queryClient.invalidateQueries({ queryKey: ['board', showId] })
     clearPendingCheck()
   }
 

@@ -699,7 +699,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
 | 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
 | 4.8 | Conflict + OT override modal | ⬜ |
-| 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ⬜ |
+| 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ✅ |
 | 4.10 | Shift detail drawer | ⬜ |
 | 4.11 | Board filters + status bar | ⬜ |
 | 4.12 | Unassign + remove assignment | ⬜ |
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.5 — dnd-kit setup + BoardDndProvider  
-**Next ticket to start:** 4.6 — Conflict detection (detectOverlap + useConflictCheck)  
+**Last completed ticket:** 4.9 — Write assignment (useCreateAssignment, optimistic UI)  
+**Next ticket to start:** 4.10 — Shift detail drawer  
 **Blockers / open questions:** None.  
-**Notes:** 4.5 created `BoardDndProvider.tsx` + `BoardDndProvider.module.css` — `DndContext` with `PointerSensor` (8px activation distance) + `KeyboardSensor`; `closestCenter` collision detection; `onDragEnd` performs role-check (staffer → security = no-op) and already-assigned guard (no-op) before calling `onAssign`; `DragOverlay` renders `WorkerMiniCard` (G/S badge + name, gold shadow); `aria-live="assertive"` region announces pick-up, target, result, and cancel for screen readers. `ShiftCard.tsx` — removed `isOver` prop; now uses `useDroppable` internally with `id="shift::{shiftId}"`, data `{ postType, assignedWorkerIds }`; reads `active.data.current` to compute `isValidOver` (gold ring) vs `isInvalidOver` (red tint) while hovering. `WorkerPanel.tsx` — `WorkerCard` uses `useDraggable` with `id="worker::{workerId}"`, data `{ type, workerId, workerType, workerName }`; original card fades to opacity 0.4 while dragging (overlay handles the visual movement). `ScheduleBoardPage.tsx` — body wrapped in `<BoardDndProvider onAssign={() => {}}>` (stub, wired for real in 4.9). `@dnd-kit/core` + `@dnd-kit/utilities` installed in `/client`.
+**Notes:** 4.6 added `detectOverlap.ts` (segment-decomposition midnight-spanning overlap) + `useConflictCheck.ts` (Supabase query with `shifts!inner` join). 4.7 added `useOvertimeCheck.ts` (Mon–Sun week bounds via local date arithmetic, sums `calcDurationHours` client-side). 4.8 added `AssignmentOverrideModal.tsx` + `BoardOverlay.tsx`; extended `PendingCheck` with display fields; `BoardOverlay` reads context and calls `useCreateAssignment` with `overrideReason` + `overrideBy`. 4.9 added `useCreateAssignment.ts` — `useMutation` with optimistic cache update (splits `workerName` to build temp `Worker` object, injects into correct shift in `['board', showId]` cache); `onError` rolls back; `onSettled` invalidates. `BoardDndProvider.onAssign` expanded to `(workerId, shiftId, workerName, workerType)`; `PendingCheck` now includes `workerType`. `BoardOverlay` and `ScheduleBoardPage` both call `useCreateAssignment` — clean path fires directly, override path fires from modal proceed handler.

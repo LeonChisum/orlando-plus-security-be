@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
+import { useCreateAssignment } from '../features/schedule/hooks/useCreateAssignment'
 import BoardDndProvider from '../features/schedule/components/BoardDndProvider'
 import BoardOverlay from '../features/schedule/components/BoardOverlay'
 import ShiftCard from '../features/schedule/components/ShiftCard'
@@ -147,6 +148,7 @@ export default function ScheduleBoardPage() {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: boardData, isLoading, isError } = useBoardData(showId ?? '')
+  const { mutate: createAssignment } = useCreateAssignment()
 
   const dates = useMemo(() => {
     if (!boardData) return []
@@ -269,7 +271,11 @@ export default function ScheduleBoardPage() {
       />
 
       {/* ── Body ── */}
-      <BoardDndProvider onAssign={() => {}}>
+      <BoardDndProvider
+        onAssign={(workerId, shiftId, workerName, workerType) => {
+          createAssignment({ showId: showId ?? '', shiftId, workerId, workerName, workerType })
+        }}
+      >
         <div className={styles.body}>
           <BoardCanvas halls={boardData.halls} selectedDate={selectedDate} />
           <WorkerPanel
