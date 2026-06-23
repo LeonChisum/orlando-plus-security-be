@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import {
   DndContext,
@@ -10,6 +10,8 @@ import {
   closestCenter,
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
+import { useConflictCheck } from '../hooks/useConflictCheck'
+import type { ConflictDetail } from '../hooks/useConflictCheck'
 import styles from './BoardDndProvider.module.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -20,13 +22,27 @@ export interface ActiveDragWorker {
   workerName: string
 }
 
+export interface PendingConflict {
+  workerId: string
+  shiftId: string
+  conflicts: ConflictDetail[]
+}
+
 interface BoardDndContextValue {
   activeWorker: ActiveDragWorker | null
+  checkingShiftId: string | null
+  pendingConflict: PendingConflict | null
+  clearPendingConflict: () => void
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
-const BoardDndContext = createContext<BoardDndContextValue>({ activeWorker: null })
+const BoardDndContext = createContext<BoardDndContextValue>({
+  activeWorker: null,
+  checkingShiftId: null,
+  pendingConflict: null,
+  clearPendingConflict: () => {},
+})
 
 export function useBoardDnd(): BoardDndContextValue {
   return useContext(BoardDndContext)
@@ -78,6 +94,11 @@ export interface BoardDndProviderProps {
 export default function BoardDndProvider({ children, onAssign }: BoardDndProviderProps) {
   const [activeWorker, setActiveWorker] = useState<ActiveDragWorker | null>(null)
   const [announcement, setAnnouncement] = useState('')
+  const [checkingShiftId, setCheckingShiftId] = useState<string | null>(null)
+  const [pendingConflict, setPendingConflict] = useState<PendingConflict | null>(null)
+  const { checkConflict } = useConflictCheck()
+
+  const clearPendingConflict = useCallback(() => setPendingConflict(null), [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -98,7 +119,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
     )
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveWorker(null)
 
@@ -111,10 +132,13 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
     const workerName = active.data.current?.workerName as string | undefined
     const postType = over.data.current?.postType as 'security' | 'staffing' | undefined
     const assignedWorkerIds = (over.data.current?.assignedWorkerIds ?? []) as string[]
+    const shiftDate = over.data.current?.shiftDate as string | undefined
+    const shiftStart = over.data.current?.shiftStart as string | undefined
+    const shiftEnd = over.data.current?.shiftEnd as string | undefined
     const workerId = parseWorkerId(active.id)
     const shiftId = parseShiftId(over.id)
 
-    if (!workerType || !postType) return
+    if (!workerType || !postType || !shiftDate || !shiftStart || !shiftEnd) return
 
     if (assignedWorkerIds.includes(workerId)) {
       setAnnouncement(`${workerName ?? 'Worker'} is already assigned to this shift.`)
@@ -126,8 +150,31 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       return
     }
 
-    setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
-    onAssign(workerId, shiftId)
+    setCheckingShiftId(shiftId)
+    setAnnouncement(`Checking ${workerName ?? 'worker'} for conflicts…`)
+
+    try {
+      const result = await checkConflict(workerId, {
+        id: shiftId,
+        date: shiftDate,
+        start_time: shiftStart,
+        end_time: shiftEnd,
+      })
+
+      if (result.hasConflict) {
+        setPendingConflict({ workerId, shiftId, conflicts: result.conflicts })
+        setAnnouncement(
+          `Conflict detected: ${workerName ?? 'Worker'} has an overlapping assignment.`,
+        )
+      } else {
+        setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
+        onAssign(workerId, shiftId)
+      }
+    } catch {
+      setAnnouncement('Could not check for conflicts. Please try again.')
+    } finally {
+      setCheckingShiftId(null)
+    }
   }
 
   function handleDragCancel() {
@@ -136,7 +183,9 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
   }
 
   return (
-    <BoardDndContext.Provider value={{ activeWorker }}>
+    <BoardDndContext.Provider
+      value={{ activeWorker, checkingShiftId, pendingConflict, clearPendingConflict }}
+    >
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

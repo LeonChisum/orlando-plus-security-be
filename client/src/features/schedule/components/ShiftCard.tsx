@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/core'
 import { calcDurationHours } from '../../imports/utils/calcDuration'
-import { isWorkerEligible } from './BoardDndProvider'
+import { isWorkerEligible, useBoardDnd } from './BoardDndProvider'
 import type { BoardShift, BoardPost } from '../hooks/useBoardData'
 import styles from './ShiftCard.module.css'
 
@@ -58,9 +58,18 @@ export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) 
     .filter((a) => a.status === 'pending' || a.status === 'confirmed')
     .map((a) => a.worker_id)
 
+  const { checkingShiftId } = useBoardDnd()
+  const isChecking = checkingShiftId === shift.id
+
   const { isOver, setNodeRef, active } = useDroppable({
     id: `shift::${shift.id}`,
-    data: { postType: post.post_type, assignedWorkerIds },
+    data: {
+      postType: post.post_type,
+      assignedWorkerIds,
+      shiftDate: shift.date,
+      shiftStart: shift.start_time,
+      shiftEnd: shift.end_time,
+    },
   })
 
   const dragWorkerType = active?.data.current?.workerType as 'guard' | 'staffer' | undefined
@@ -82,6 +91,7 @@ export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) 
         styles[`card--${variant}`],
         isValidOver ? styles['card--dragOver'] : '',
         isInvalidOver ? styles['card--dragInvalid'] : '',
+        isChecking ? styles['card--checking'] : '',
       ].filter(Boolean).join(' ')}
       role="button"
       tabIndex={0}
@@ -94,6 +104,12 @@ export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) 
       }}
       aria-label={`${formatTime(shift.start_time)}–${formatTime(shift.end_time)}, ${activeCount} of ${post.headcount_required} assigned`}
     >
+      {isChecking && (
+        <div className={styles.checkingOverlay} aria-hidden="true">
+          <span className={styles.spinner} />
+        </div>
+      )}
+
       {/* ── Time + headcount ── */}
       <div className={styles.timeRow}>
         <span className={styles.timeRange}>

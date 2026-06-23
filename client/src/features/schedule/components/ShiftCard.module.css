@@ -1,6 +1,7 @@
 /* ── Card base ───────────────────────────────────────────────────── */
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -55,6 +56,48 @@
 
 .card--noShow:hover {
   box-shadow: var(--shadow-1);
+}
+
+/* ── Conflict-checking overlay ───────────────────────────────────── */
+
+.card--checking {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.checkingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: inherit;
+  z-index: 1;
+}
+
+[data-theme='dark'] .checkingOverlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--gold-500);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-color: var(--gold-500);
+  }
 }
 
 /* ── Drag-over states ────────────────────────────────────────────── */
