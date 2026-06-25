@@ -43,11 +43,12 @@ export interface ShiftCardProps {
   shift: BoardShift
   post: BoardPost
   onCardClick: () => void
+  isSelected?: boolean
 }
 
 const MAX_VISIBLE = 3
 
-export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) {
+export default function ShiftCard({ shift, post, onCardClick, isSelected }: ShiftCardProps) {
   const variant = getVariant(shift, post)
 
   const activeCount = shift.assignments.filter(
@@ -92,6 +93,7 @@ export default function ShiftCard({ shift, post, onCardClick }: ShiftCardProps) 
         isValidOver ? styles['card--dragOver'] : '',
         isInvalidOver ? styles['card--dragInvalid'] : '',
         isChecking ? styles['card--checking'] : '',
+        isSelected ? styles['card--selected'] : '',
       ].filter(Boolean).join(' ')}
       role="button"
       tabIndex={0}

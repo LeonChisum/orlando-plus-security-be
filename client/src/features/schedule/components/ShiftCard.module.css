@@ -113,6 +113,10 @@
   cursor: not-allowed;
 }
 
+.card--selected {
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500) !important;
+}
+
 /* ── Time row ────────────────────────────────────────────────────── */
 
 .timeRow {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost } from '../features/schedule/hooks/useBoardData'
@@ -6,6 +6,7 @@ import { useCreateAssignment } from '../features/schedule/hooks/useCreateAssignm
 import BoardDndProvider from '../features/schedule/components/BoardDndProvider'
 import BoardOverlay from '../features/schedule/components/BoardOverlay'
 import ShiftCard from '../features/schedule/components/ShiftCard'
+import ShiftDrawer from '../features/schedule/components/ShiftDrawer'
 import WorkerPanel from '../features/schedule/components/WorkerPanel'
 import styles from './ScheduleBoardPage.module.css'
 import '../features/shows/components/Show.css'
@@ -58,7 +59,15 @@ function DateTabBar({ dates, selectedDate, onSelect }: DateTabBarProps) {
 
 // ─── PostRow ──────────────────────────────────────────────────────────────────
 
-function PostRow({ post }: { post: BoardPost }) {
+function PostRow({
+  post,
+  selectedShiftId,
+  onShiftClick,
+}: {
+  post: BoardPost
+  selectedShiftId: string | null
+  onShiftClick: (shiftId: string) => void
+}) {
   return (
     <div className={styles.postRow}>
       <div className={styles.postInfo}>
@@ -74,7 +83,8 @@ function PostRow({ post }: { post: BoardPost }) {
             key={shift.id}
             shift={shift}
             post={post}
-            onCardClick={() => {}}
+            onCardClick={() => onShiftClick(shift.id)}
+            isSelected={selectedShiftId === shift.id}
           />
         ))}
       </div>
@@ -84,7 +94,17 @@ function PostRow({ post }: { post: BoardPost }) {
 
 // ─── HallGroup ────────────────────────────────────────────────────────────────
 
-function HallGroup({ hall, filteredPosts }: { hall: BoardHall; filteredPosts: BoardPost[] }) {
+function HallGroup({
+  hall,
+  filteredPosts,
+  selectedShiftId,
+  onShiftClick,
+}: {
+  hall: BoardHall
+  filteredPosts: BoardPost[]
+  selectedShiftId: string | null
+  onShiftClick: (shiftId: string) => void
+}) {
   const shiftCount = filteredPosts.reduce((acc, p) => acc + p.shifts.length, 0)
 
   return (
@@ -98,7 +118,12 @@ function HallGroup({ hall, filteredPosts }: { hall: BoardHall; filteredPosts: Bo
       </div>
       <div className={styles.postList}>
         {filteredPosts.map((post) => (
-          <PostRow key={post.id} post={post} />
+          <PostRow
+            key={post.id}
+            post={post}
+            selectedShiftId={selectedShiftId}
+            onShiftClick={onShiftClick}
+          />
         ))}
       </div>
     </div>
@@ -110,9 +135,11 @@ function HallGroup({ hall, filteredPosts }: { hall: BoardHall; filteredPosts: Bo
 interface BoardCanvasProps {
   halls: BoardHall[]
   selectedDate: string
+  selectedShiftId: string | null
+  onShiftClick: (shiftId: string) => void
 }
 
-function BoardCanvas({ halls, selectedDate }: BoardCanvasProps) {
+function BoardCanvas({ halls, selectedDate, selectedShiftId, onShiftClick }: BoardCanvasProps) {
   const filtered = useMemo(() => {
     return halls
       .map((hall) => ({
@@ -134,7 +161,13 @@ function BoardCanvas({ halls, selectedDate }: BoardCanvasProps) {
   return (
     <div className={styles.canvas}>
       {filtered.map(({ hall, posts }) => (
-        <HallGroup key={hall.id} hall={hall} filteredPosts={posts} />
+        <HallGroup
+          key={hall.id}
+          hall={hall}
+          filteredPosts={posts}
+          selectedShiftId={selectedShiftId}
+          onShiftClick={onShiftClick}
+        />
       ))}
     </div>
   )
@@ -149,6 +182,7 @@ export default function ScheduleBoardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: boardData, isLoading, isError } = useBoardData(showId ?? '')
   const { mutate: createAssignment } = useCreateAssignment()
+  const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null)
 
   const dates = useMemo(() => {
     if (!boardData) return []
@@ -175,6 +209,23 @@ export default function ScheduleBoardPage() {
     const today = getTodayStr()
     return dates.includes(today) ? today : dates[0]
   }, [dates, searchParams])
+
+  // Close drawer when the date tab changes
+  useEffect(() => {
+    setSelectedShiftId(null)
+  }, [selectedDate])
+
+  // Derive the selected shift from live boardData so the drawer always reflects cache
+  const selectedShiftContext = useMemo(() => {
+    if (!selectedShiftId || !boardData) return null
+    for (const hall of boardData.halls) {
+      for (const post of hall.posts) {
+        const shift = post.shifts.find((s) => s.id === selectedShiftId)
+        if (shift) return { shift, post, hallName: hall.name }
+      }
+    }
+    return null
+  }, [selectedShiftId, boardData])
 
   const totalShifts = useMemo(
     () => boardData?.halls.flatMap((h) => h.posts.flatMap((p) => p.shifts)).length ?? 0,
@@ -277,7 +328,12 @@ export default function ScheduleBoardPage() {
         }}
       >
         <div className={styles.body}>
-          <BoardCanvas halls={boardData.halls} selectedDate={selectedDate} />
+          <BoardCanvas
+            halls={boardData.halls}
+            selectedDate={selectedDate}
+            selectedShiftId={selectedShiftId}
+            onShiftClick={setSelectedShiftId}
+          />
           <WorkerPanel
             showId={showId ?? ''}
             date={selectedDate}
@@ -285,6 +341,16 @@ export default function ScheduleBoardPage() {
           />
         </div>
         <BoardOverlay showId={showId ?? ''} />
+        {selectedShiftContext && (
+          <ShiftDrawer
+            shift={selectedShiftContext.shift}
+            post={selectedShiftContext.post}
+            hallName={selectedShiftContext.hallName}
+            showId={showId ?? ''}
+            halls={boardData.halls}
+            onClose={() => setSelectedShiftId(null)}
+          />
+        )}
       </BoardDndProvider>
     </div>
   )

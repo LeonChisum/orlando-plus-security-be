@@ -700,7 +700,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
 | 4.8 | Conflict + OT override modal | ⬜ |
 | 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ✅ |
-| 4.10 | Shift detail drawer | ⬜ |
+| 4.10 | Shift detail drawer | ✅ |
 | 4.11 | Board filters + status bar | ⬜ |
 | 4.12 | Unassign + remove assignment | ⬜ |
 
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.9 — Write assignment (useCreateAssignment, optimistic UI)  
-**Next ticket to start:** 4.10 — Shift detail drawer  
+**Last completed ticket:** 4.10 — Shift detail drawer  
+**Next ticket to start:** 4.11 — Board filters + status bar  
 **Blockers / open questions:** None.  
-**Notes:** 4.6 added `detectOverlap.ts` (segment-decomposition midnight-spanning overlap) + `useConflictCheck.ts` (Supabase query with `shifts!inner` join). 4.7 added `useOvertimeCheck.ts` (Mon–Sun week bounds via local date arithmetic, sums `calcDurationHours` client-side). 4.8 added `AssignmentOverrideModal.tsx` + `BoardOverlay.tsx`; extended `PendingCheck` with display fields; `BoardOverlay` reads context and calls `useCreateAssignment` with `overrideReason` + `overrideBy`. 4.9 added `useCreateAssignment.ts` — `useMutation` with optimistic cache update (splits `workerName` to build temp `Worker` object, injects into correct shift in `['board', showId]` cache); `onError` rolls back; `onSettled` invalidates. `BoardDndProvider.onAssign` expanded to `(workerId, shiftId, workerName, workerType)`; `PendingCheck` now includes `workerType`. `BoardOverlay` and `ScheduleBoardPage` both call `useCreateAssignment` — clean path fires directly, override path fires from modal proceed handler.
+**Notes:** 4.9 added `useCreateAssignment.ts` — `useMutation` with optimistic cache update; `BoardDndProvider.onAssign` expanded to pass `workerName` + `workerType`; `PendingCheck` includes `workerType`. 4.10 extracted check logic into `checkAndAssign` on `BoardDndContext` (replaces the inline try/catch in `handleDragEnd`; drawer calls same function for "Add Worker"). `ShiftDrawer.tsx` + `ShiftDrawer.module.css` — slides from right (`position: fixed`, `z-index: var(--z-drawer)`); header + meta strip + status badge; assignment list with per-row Mark No-Show / Remove (inline confirm for confirmed/acked); Override reason collapsed behind toggle; "Add Worker" inline search that calls `checkAndAssign` (same conflict + OT + modal pipeline as drag). `mapCacheAssignment` + `filterCacheAssignment` helpers for optimistic mutations inside drawer. `ScheduleBoardPage`: `selectedShiftId` state; `useEffect` clears on date tab change; `selectedShiftContext` derived from `boardData` (always reflects live cache); `ShiftCard` gains `isSelected` prop (gold ring) + `onShiftClick` threaded through `BoardCanvas → HallGroup → PostRow`; `ShiftDrawer` renders inside `BoardDndProvider` so it can call `useBoardDnd()`.

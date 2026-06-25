@@ -40,11 +40,24 @@ export interface PendingCheck {
   overtimeResult: OvertimeResult | null
 }
 
+export interface AssignCheckParams {
+  workerId: string
+  shiftId: string
+  workerName: string
+  workerType: 'guard' | 'staffer'
+  postType: 'security' | 'staffing'
+  shiftDate: string
+  shiftStart: string
+  shiftEnd: string
+  assignedWorkerIds: string[]
+}
+
 interface BoardDndContextValue {
   activeWorker: ActiveDragWorker | null
   checkingShiftId: string | null
   pendingCheck: PendingCheck | null
   clearPendingCheck: () => void
+  checkAndAssign: (params: AssignCheckParams) => Promise<void>
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -54,6 +67,7 @@ const BoardDndContext = createContext<BoardDndContextValue>({
   checkingShiftId: null,
   pendingCheck: null,
   clearPendingCheck: () => {},
+  checkAndAssign: async () => {},
 })
 
 export function useBoardDnd(): BoardDndContextValue {
@@ -113,6 +127,67 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
 
   const clearPendingCheck = useCallback(() => setPendingCheck(null), [])
 
+  const checkAndAssign = useCallback(
+    async ({
+      workerId,
+      shiftId,
+      workerName,
+      workerType,
+      postType,
+      shiftDate,
+      shiftStart,
+      shiftEnd,
+      assignedWorkerIds,
+    }: AssignCheckParams): Promise<void> => {
+      if (assignedWorkerIds.includes(workerId)) return
+      if (!isWorkerEligible(workerType, postType)) return
+
+      const targetShift = { id: shiftId, date: shiftDate, start_time: shiftStart, end_time: shiftEnd }
+      setCheckingShiftId(shiftId)
+      setAnnouncement(`Checking ${workerName} for conflicts…`)
+
+      try {
+        const conflictResult = await checkConflict(workerId, targetShift)
+
+        if (conflictResult.hasConflict) {
+          setPendingCheck({
+            workerId, shiftId, workerName, workerType,
+            shiftDate, shiftStart, shiftEnd,
+            conflicts: conflictResult.conflicts,
+            overtimeResult: null,
+          })
+          setAnnouncement(`Conflict detected: ${workerName} has an overlapping assignment.`)
+          return
+        }
+
+        const overtimeResult = await checkOvertime(workerId, targetShift)
+
+        if (overtimeResult.hasFlag) {
+          setPendingCheck({
+            workerId, shiftId, workerName, workerType,
+            shiftDate, shiftStart, shiftEnd,
+            conflicts: [],
+            overtimeResult,
+          })
+          setAnnouncement(
+            `Overtime: ${workerName} has ${round1(overtimeResult.currentHours)} hrs this week. ` +
+            `This shift adds ${round1(overtimeResult.shiftHours)} hrs, reaching ${round1(overtimeResult.projectedHours)} hrs total.`,
+          )
+          return
+        }
+
+        setAnnouncement(`Assigned ${workerName} to shift.`)
+        onAssign(workerId, shiftId, workerName, workerType)
+      } catch (err) {
+        setAnnouncement('Could not complete assignment check. Please try again.')
+        throw err
+      } finally {
+        setCheckingShiftId(null)
+      }
+    },
+    [checkConflict, checkOvertime, onAssign],
+  )
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor),
@@ -163,62 +238,20 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
       return
     }
 
-    const targetShift = { id: shiftId, date: shiftDate, start_time: shiftStart, end_time: shiftEnd }
-
-    setCheckingShiftId(shiftId)
-    setAnnouncement(`Checking ${workerName ?? 'worker'} for conflicts…`)
-
     try {
-      // ── Step 1: conflict check ────────────────────────────────────────────
-      const conflictResult = await checkConflict(workerId, targetShift)
-
-      if (conflictResult.hasConflict) {
-        setPendingCheck({
-          workerId,
-          shiftId,
-          workerName: workerName ?? 'Unknown',
-          workerType,
-          shiftDate,
-          shiftStart,
-          shiftEnd,
-          conflicts: conflictResult.conflicts,
-          overtimeResult: null,
-        })
-        setAnnouncement(
-          `Conflict detected: ${workerName ?? 'Worker'} has an overlapping assignment.`,
-        )
-        return
-      }
-
-      // ── Step 2: overtime check (only runs after clean conflict result) ────
-      const overtimeResult = await checkOvertime(workerId, targetShift)
-
-      if (overtimeResult.hasFlag) {
-        setPendingCheck({
-          workerId,
-          shiftId,
-          workerName: workerName ?? 'Unknown',
-          workerType,
-          shiftDate,
-          shiftStart,
-          shiftEnd,
-          conflicts: [],
-          overtimeResult,
-        })
-        setAnnouncement(
-          `Overtime: ${workerName ?? 'Worker'} has ${round1(overtimeResult.currentHours)} hrs this week. ` +
-          `This shift adds ${round1(overtimeResult.shiftHours)} hrs, reaching ${round1(overtimeResult.projectedHours)} hrs total.`,
-        )
-        return
-      }
-
-      // ── Step 3: clean — write the assignment ─────────────────────────────
-      setAnnouncement(`Assigned ${workerName ?? 'worker'} to shift.`)
-      onAssign(workerId, shiftId, workerName ?? 'Unknown', workerType)
+      await checkAndAssign({
+        workerId,
+        shiftId,
+        workerName: workerName ?? 'Unknown',
+        workerType,
+        postType,
+        shiftDate,
+        shiftStart,
+        shiftEnd,
+        assignedWorkerIds,
+      })
     } catch {
-      setAnnouncement('Could not complete assignment check. Please try again.')
-    } finally {
-      setCheckingShiftId(null)
+      // checkAndAssign already set the error announcement
     }
   }
 
@@ -229,7 +262,7 @@ export default function BoardDndProvider({ children, onAssign }: BoardDndProvide
 
   return (
     <BoardDndContext.Provider
-      value={{ activeWorker, checkingShiftId, pendingCheck, clearPendingCheck }}
+      value={{ activeWorker, checkingShiftId, pendingCheck, clearPendingCheck, checkAndAssign }}
     >
       <DndContext
         sensors={sensors}
