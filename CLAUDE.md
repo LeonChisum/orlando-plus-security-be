@@ -701,7 +701,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.8 | Conflict + OT override modal | ⬜ |
 | 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ✅ |
 | 4.10 | Shift detail drawer | ✅ |
-| 4.11 | Board filters + status bar | ⬜ |
+| 4.11 | Board filters + status bar | ✅ |
 | 4.12 | Unassign + remove assignment | ⬜ |
 
 ---
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.10 — Shift detail drawer  
-**Next ticket to start:** 4.11 — Board filters + status bar  
+**Last completed ticket:** 4.11 — Board filters + status bar  
+**Next ticket to start:** 4.12 — Unassign + remove assignment  
 **Blockers / open questions:** None.  
-**Notes:** 4.9 added `useCreateAssignment.ts` — `useMutation` with optimistic cache update; `BoardDndProvider.onAssign` expanded to pass `workerName` + `workerType`; `PendingCheck` includes `workerType`. 4.10 extracted check logic into `checkAndAssign` on `BoardDndContext` (replaces the inline try/catch in `handleDragEnd`; drawer calls same function for "Add Worker"). `ShiftDrawer.tsx` + `ShiftDrawer.module.css` — slides from right (`position: fixed`, `z-index: var(--z-drawer)`); header + meta strip + status badge; assignment list with per-row Mark No-Show / Remove (inline confirm for confirmed/acked); Override reason collapsed behind toggle; "Add Worker" inline search that calls `checkAndAssign` (same conflict + OT + modal pipeline as drag). `mapCacheAssignment` + `filterCacheAssignment` helpers for optimistic mutations inside drawer. `ScheduleBoardPage`: `selectedShiftId` state; `useEffect` clears on date tab change; `selectedShiftContext` derived from `boardData` (always reflects live cache); `ShiftCard` gains `isSelected` prop (gold ring) + `onShiftClick` threaded through `BoardCanvas → HallGroup → PostRow`; `ShiftDrawer` renders inside `BoardDndProvider` so it can call `useBoardDnd()`.
+**Notes:** 4.11 added `FilterState` type + `getShiftVariant` helper to `ScheduleBoardPage`; `FilterBar` component (shift status pills All/Open/Partial/Filled, post type pills All/Security/Staffing, hall multi-select dropdown with click-outside dismiss); `StatusBar` (fixed at bottom: total · open · partial · filled · no-show counts + unacknowledged + overrides from all day shifts, "All clear" when clean); filter state stored in URL params (`status`, `postType`, `halls` comma-separated) so board state is shareable; hall IDs validated against live boardData to prevent stale params; `BoardCanvas` applies hall filter (hides excluded halls entirely), status + postType filters (filter posts within halls but keep hall header visible when 0 posts remain); `HallGroup` renders `.hallEmpty` message instead of hiding when `filteredPosts.length === 0`; `DateTabBar.onSelect` updated to preserve existing filter params rather than wiping them.
