@@ -477,6 +477,31 @@
 
 .confirmNo:hover { background: var(--surface-hover); }
 
+/* ── Acknowledged-remove hard confirm ────────────────────────────── */
+
+.rowActions--wide {
+  flex: 1;
+  align-items: flex-start;
+}
+
+.confirmWarnText {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  color: var(--warn-500);
+  background: var(--warn-bg);
+  border: 1px solid rgba(224, 138, 0, 0.25);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  line-height: 1.45;
+}
+
+.confirmWarnActions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+  width: 100%;
+}
+
 /* ── Add Worker button ───────────────────────────────────────────── */
 
 .addWorkerBtn {

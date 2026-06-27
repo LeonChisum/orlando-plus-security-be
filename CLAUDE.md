@@ -702,7 +702,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ✅ |
 | 4.10 | Shift detail drawer | ✅ |
 | 4.11 | Board filters + status bar | ✅ |
-| 4.12 | Unassign + remove assignment | ⬜ |
+| 4.12 | Unassign + remove assignment | ✅ |
 
 ---
 
@@ -710,7 +710,7 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.11 — Board filters + status bar  
-**Next ticket to start:** 4.12 — Unassign + remove assignment  
+**Last completed ticket:** 4.12 — Unassign + remove assignment  
+**Next ticket to start:** 4.6 — Conflict detection (detectOverlap + useConflictCheck)  
 **Blockers / open questions:** None.  
-**Notes:** 4.11 added `FilterState` type + `getShiftVariant` helper to `ScheduleBoardPage`; `FilterBar` component (shift status pills All/Open/Partial/Filled, post type pills All/Security/Staffing, hall multi-select dropdown with click-outside dismiss); `StatusBar` (fixed at bottom: total · open · partial · filled · no-show counts + unacknowledged + overrides from all day shifts, "All clear" when clean); filter state stored in URL params (`status`, `postType`, `halls` comma-separated) so board state is shareable; hall IDs validated against live boardData to prevent stale params; `BoardCanvas` applies hall filter (hides excluded halls entirely), status + postType filters (filter posts within halls but keep hall header visible when 0 posts remain); `HallGroup` renders `.hallEmpty` message instead of hiding when `filteredPosts.length === 0`; `DateTabBar.onSelect` updated to preserve existing filter params rather than wiping them.
+**Notes:** 4.12 changes are entirely in `ShiftDrawer.tsx` and `ShiftDrawer.module.css`. `handleRemoveClick` now always sets `confirmRemoveId` (previously skipped confirm for unacknowledged pending). The confirm UI branches on `a.acknowledged_at`: unacknowledged shows the existing inline "Remove? Yes / No" row; acknowledged shows a hard confirm with amber warning text ("This guard has already acknowledged this shift. Removing will not automatically notify them."), Cancel + "Remove anyway" buttons. The `rowActions` div gets `.rowActions--wide` (flex: 1, align-items: flex-start) when the hard-confirm is active so the warning text fills available space. No-show strikethrough was already in ShiftCard (`.pill--noShow`). Optimistic remove (`filterCacheAssignment`) and fill-status recalc were already wired from 4.10.

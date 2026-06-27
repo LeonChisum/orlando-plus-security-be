@@ -236,12 +236,7 @@ export default function ShiftDrawer({
   }
 
   function handleRemoveClick(a: BoardAssignment) {
-    const needsConfirm = a.status === 'confirmed' || !!a.acknowledged_at
-    if (needsConfirm) {
-      setConfirmRemoveId(a.id)
-    } else {
-      removeAssignment(a.id)
-    }
+    setConfirmRemoveId(a.id)
   }
 
   function handleAddWorker(params: AssignCheckParams) {
@@ -367,27 +362,61 @@ export default function ShiftDrawer({
                     </div>
 
                     {/* Row actions */}
-                    <div className={styles.rowActions}>
+                    <div
+                      className={[
+                        styles.rowActions,
+                        confirmRemoveId === a.id && !!a.acknowledged_at
+                          ? styles['rowActions--wide']
+                          : '',
+                      ].filter(Boolean).join(' ')}
+                    >
                       {confirmRemoveId === a.id ? (
-                        <div className={styles.confirmRow}>
-                          <span className={styles.confirmLabel}>Remove?</span>
-                          <button
-                            className={styles.confirmYes}
-                            onClick={() => {
-                              removeAssignment(a.id)
-                              setConfirmRemoveId(null)
-                            }}
-                            disabled={isRemoving}
-                          >
-                            Yes
-                          </button>
-                          <button
-                            className={styles.confirmNo}
-                            onClick={() => setConfirmRemoveId(null)}
-                          >
-                            No
-                          </button>
-                        </div>
+                        a.acknowledged_at ? (
+                          <>
+                            <p className={styles.confirmWarnText}>
+                              This guard has already acknowledged this shift. Removing will not
+                              automatically notify them.
+                            </p>
+                            <div className={styles.confirmWarnActions}>
+                              <button
+                                className={styles.confirmNo}
+                                onClick={() => setConfirmRemoveId(null)}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className={styles.confirmYes}
+                                onClick={() => {
+                                  removeAssignment(a.id)
+                                  setConfirmRemoveId(null)
+                                }}
+                                disabled={isRemoving}
+                              >
+                                Remove anyway
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.confirmRow}>
+                            <span className={styles.confirmLabel}>Remove?</span>
+                            <button
+                              className={styles.confirmYes}
+                              onClick={() => {
+                                removeAssignment(a.id)
+                                setConfirmRemoveId(null)
+                              }}
+                              disabled={isRemoving}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              className={styles.confirmNo}
+                              onClick={() => setConfirmRemoveId(null)}
+                            >
+                              No
+                            </button>
+                          </div>
+                        )
                       ) : (
                         <>
                           {a.status !== 'no_show' && (
