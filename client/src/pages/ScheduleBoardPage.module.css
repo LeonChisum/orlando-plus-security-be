@@ -546,6 +546,31 @@
   flex-shrink: 0;
 }
 
+/* ── OT flag chip (clickable status bar item) ───────────────────── */
+
+.otFlagChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--warn-500);
+  min-height: var(--tap-min);
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.otFlagChip:hover {
+  background: var(--warn-bg);
+}
+
+.otFlagChip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--gold-500);
+}
+
 /* ── Loading state ───────────────────────────────────────────────── */
 
 .loadingState {

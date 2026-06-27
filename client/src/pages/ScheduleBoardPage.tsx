@@ -3,8 +3,10 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useBoardData } from '../features/schedule/hooks/useBoardData'
 import type { BoardHall, BoardPost, BoardShift } from '../features/schedule/hooks/useBoardData'
 import { useCreateAssignment } from '../features/schedule/hooks/useCreateAssignment'
+import { useOvertimeFlags } from '../features/schedule/hooks/useOvertimeFlags'
 import BoardDndProvider from '../features/schedule/components/BoardDndProvider'
 import BoardOverlay from '../features/schedule/components/BoardOverlay'
+import OtFlagsPanel from '../features/schedule/components/OtFlagsPanel'
 import ShiftCard from '../features/schedule/components/ShiftCard'
 import ShiftDrawer from '../features/schedule/components/ShiftDrawer'
 import WorkerPanel from '../features/schedule/components/WorkerPanel'
@@ -221,7 +223,14 @@ function FilterBar({ halls, filterState, onUpdate }: FilterBarProps) {
 
 // ─── StatusBar ────────────────────────────────────────────────────────────────
 
-function StatusBar({ halls, selectedDate }: { halls: BoardHall[]; selectedDate: string }) {
+interface StatusBarProps {
+  showId: string
+  halls: BoardHall[]
+  selectedDate: string
+  onOpenOtPanel: () => void
+}
+
+function StatusBar({ showId, halls, selectedDate, onOpenOtPanel }: StatusBarProps) {
   const stats = useMemo(() => {
     let open = 0, partial = 0, filled = 0, noShow = 0, unacknowledged = 0, overrides = 0, total = 0
 
@@ -248,6 +257,11 @@ function StatusBar({ halls, selectedDate }: { halls: BoardHall[]; selectedDate: 
 
     return { total, open, partial, filled, noShow, unacknowledged, overrides }
   }, [halls, selectedDate])
+
+  const { data: otFlags } = useOvertimeFlags(showId)
+  const unresolvedOt = otFlags?.filter((f) => !f.resolved_at).length ?? 0
+
+  const allClear = stats.unacknowledged === 0 && stats.overrides === 0 && unresolvedOt === 0
 
   return (
     <div className={styles.statusBar} role="status" aria-label="Board status summary">
@@ -292,7 +306,17 @@ function StatusBar({ halls, selectedDate }: { halls: BoardHall[]; selectedDate: 
             <span className={styles.statusLabel}>overrides</span>
           </span>
         )}
-        {stats.unacknowledged === 0 && stats.overrides === 0 && stats.total > 0 && (
+        {unresolvedOt > 0 && (
+          <button
+            className={styles.otFlagChip}
+            onClick={onOpenOtPanel}
+            aria-label={`${unresolvedOt} unresolved overtime flag${unresolvedOt === 1 ? '' : 's'} — click to review`}
+          >
+            <span className={styles.statusCount}>{unresolvedOt}</span>
+            <span className={styles.statusLabel}>OT flag{unresolvedOt === 1 ? '' : 's'}</span>
+          </button>
+        )}
+        {allClear && stats.total > 0 && (
           <span className={`${styles.statusItem} ${styles['statusItem--ok']}`}>
             <span className={styles.statusLabel}>All clear</span>
           </span>
@@ -456,6 +480,7 @@ export default function ScheduleBoardPage() {
   const { data: boardData, isLoading, isError } = useBoardData(showId ?? '')
   const { mutate: createAssignment } = useCreateAssignment()
   const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null)
+  const [showOtPanel, setShowOtPanel] = useState(false)
 
   const dates = useMemo(() => {
     if (!boardData) return []
@@ -673,7 +698,17 @@ export default function ScheduleBoardPage() {
       </BoardDndProvider>
 
       {/* ── Status bar ── */}
-      <StatusBar halls={boardData.halls} selectedDate={selectedDate} />
+      <StatusBar
+        showId={showId ?? ''}
+        halls={boardData.halls}
+        selectedDate={selectedDate}
+        onOpenOtPanel={() => setShowOtPanel(true)}
+      />
+
+      {/* ── OT Flags panel ── */}
+      {showOtPanel && (
+        <OtFlagsPanel showId={showId ?? ''} onClose={() => setShowOtPanel(false)} />
+      )}
     </div>
   )
 }

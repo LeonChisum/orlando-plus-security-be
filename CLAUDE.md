@@ -626,8 +626,8 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 1 | Scaffold + Schema + Seed + Roster CRUD | ✅ |
 | 2 | Excel Buy Order Import | ✅ |
 | 3 | Shift Split Engine | ✅ |
-| 4 | Assignment Board UI | 🔵 Active |
-| 5 | Conflict + Overtime Detection | ⬜ |
+| 4 | Assignment Board UI | ✅ |
+| 5 | Conflict + Overtime Detection | 🔵 Active |
 | 6 | PDF Generation + Email Ack | ⬜ |
 | 7 | Guard Availability Webform | ⬜ |
 
@@ -696,9 +696,9 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 | 4.3 | ShiftCard component | ✅ |
 | 4.4 | Worker panel + useWorkerPanel | ✅ |
 | 4.5 | dnd-kit setup + BoardDndProvider | ✅ |
-| 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ⬜ |
-| 4.7 | Overtime detection (useOvertimeCheck) | ⬜ |
-| 4.8 | Conflict + OT override modal | ⬜ |
+| 4.6 | Conflict detection (detectOverlap + useConflictCheck) | ✅ |
+| 4.7 | Overtime detection (useOvertimeCheck) | ✅ |
+| 4.8 | Conflict + OT override modal | ✅ |
 | 4.9 | Write assignment (useCreateAssignment, optimistic UI) | ✅ |
 | 4.10 | Shift detail drawer | ✅ |
 | 4.11 | Board filters + status bar | ✅ |
@@ -706,11 +706,25 @@ Loaded via `supabase db reset` from `supabase/seed.sql`.
 
 ---
 
+## Phase 5 Tickets
+
+| # | Ticket | Status |
+|---|---|---|
+| 5.1 | OT flags management (panel, resolve, reopen, status bar chip) | ✅ |
+| 5.2 | Board alerts panel | ⬜ |
+| 5.3 | Worker hours summary | ⬜ |
+| 5.4 | Pre-drag load indicators | ⬜ |
+| 5.5 | Move conflict detection to Postgres function | ⬜ |
+| 5.6 | Cascade handling (shifts deleted after assignments) | ⬜ |
+| 5.7 | Coverage report | ⬜ |
+
+---
+
 ## Session Handoff
 
 > Update this section at the end of every working session.
 
-**Last completed ticket:** 4.12 — Unassign + remove assignment  
-**Next ticket to start:** 4.6 — Conflict detection (detectOverlap + useConflictCheck)  
+**Last completed ticket:** 5.1 — OT flags management  
+**Next ticket to start:** 5.2 — Board alerts panel  
 **Blockers / open questions:** None.  
-**Notes:** 4.12 changes are entirely in `ShiftDrawer.tsx` and `ShiftDrawer.module.css`. `handleRemoveClick` now always sets `confirmRemoveId` (previously skipped confirm for unacknowledged pending). The confirm UI branches on `a.acknowledged_at`: unacknowledged shows the existing inline "Remove? Yes / No" row; acknowledged shows a hard confirm with amber warning text ("This guard has already acknowledged this shift. Removing will not automatically notify them."), Cancel + "Remove anyway" buttons. The `rowActions` div gets `.rowActions--wide` (flex: 1, align-items: flex-start) when the hard-confirm is active so the warning text fills available space. No-show strikethrough was already in ShiftCard (`.pill--noShow`). Optimistic remove (`filterCacheAssignment`) and fill-status recalc were already wired from 4.10.
+**Notes:** 5.1 introduced migration `003_add_resolution_note.sql` (adds `resolution_note text` and `resolved_by_name text` to `overtime_flags`). New hooks: `useOvertimeFlags(showId)` fetches flags with joined worker name; `useResolveOvertimeFlag` looks up the logged-in supervisor's worker record by email to populate `resolved_by` FK + `resolved_by_name` text, then sets `resolved_at`/`resolution_note`; `useReopenOvertimeFlag` clears all four fields. `OtFlagsPanel` is a right-side drawer (same pattern as ShiftDrawer) with an Active section (inline optional note textarea, "Mark Resolved" button) and a collapsed Resolved section ("Reopen" per row). The status bar in `ScheduleBoardPage` gained `showId` + `onOpenOtPanel` props; it fetches OT flags via `useOvertimeFlags` (React Query deduplicates the call from the panel), shows an amber "X OT flags" chip button when unresolved count > 0, and factors OT flags into the "All clear" condition. Phase 4 tickets 4.6/4.7/4.8 were already implemented in a prior session (files exist) — marked ✅ now.

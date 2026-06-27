@@ -271,7 +271,9 @@ export interface OvertimeFlag {
   week_start: string
   total_hours: number
   resolved_by?: string
+  resolved_by_name?: string
   resolved_at?: string
+  resolution_note?: string
   created_at: string
 }
 
